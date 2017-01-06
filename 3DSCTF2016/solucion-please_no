@@ -136,7 +136,7 @@ En el código de la sección .text aparece algo interesante:
 80486a5:	75 23                	jne    80486ca <fgetc@plt+0x26a>         <--- Me echa al mismo sitio si no coincide con 0xae13374e
 80486a7:	c7 44 24 16 6d 66 6c 	mov    DWORD PTR [esp+0x16],0x616c666d	 <--- ¿Mete en la pila el nombre del fichero? 0x616c666d='alfm'
 80486ae:	61 
-80486af:	66 c7 44 24 1a 67 00 	mov    WORD PTR [esp+0x1a],0x67			     <--- ¿Y luego una 'g'? ¿'mflag' nombre del fichero? ¿extensión?
+80486af:	66 c7 44 24 1a 67 00 	mov    WORD PTR [esp+0x1a],0x67          <--- ¿Y luego una 'g'? ¿'mflag' nombre del fichero? ¿Extensión?
 80486b6:	8d 44 24 16          	lea    eax,[esp+0x16]                    <--- Carga la posición de memoria donde está 'mflag'
 80486ba:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax           <--- Nombre del fichero como arg2 de strcat
 80486be:	c7 04 24 39 a0 04 08 	mov    DWORD PTR [esp],0x804a039         <--- Puntero como arg1 donde guardar resultado
