@@ -330,3 +330,16 @@ print payload
 
 # Fin fichero pwn_please_no.py
 
+
+- Breakpoints para seguir la ejecucción
+
+>>> i br
+Num     Type           Disp Enb Address    What
+2       breakpoint     keep y   0x0804871f 
+	breakpoint already hit 1 time
+3       breakpoint     keep y   0x080486ca 
+	breakpoint already hit 1 time
+4       breakpoint     keep y   0x08048680 
+	breakpoint already hit 1 time
+6       breakpoint     keep y   0x08048605 
+	breakpoint already hit 1 time
