@@ -133,7 +133,7 @@ En la pila tiene que quedar algo como esto antes de llamar al ret de get_secret:
 El payload quedaría así gráficamente:
 ```
 | Pila          | Función     |
-| ------------- |:-----------:| 
+| ------------- |-------------| 
 | 45*A          | offset      | 
 | 0x080489a0    | get_secret  | 
 | 0x0804f0a0    | printf      |
