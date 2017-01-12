@@ -142,7 +142,7 @@ El payload quedaría así gráficamente:
 ```
 
 Archivo final para explotar:
-```
+```python
 #!/usr/bin/env python
 # Archivo pwn_not_the_same.py
 
