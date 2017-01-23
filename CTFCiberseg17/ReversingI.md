@@ -1,6 +1,9 @@
 Este era un reto muy sencillo, simplemente había que ver el código ensamblador de la función "main" y ya tenías el flag:
 
 ```
+objdump -M intel -S 48b366dada6f5ef8898058e7713b4ad3
+```
+```
 00000000004004b6 <main>:
   4004b6:	55                   	push   rbp
   4004b7:	48 89 e5             	mov    rbp,rsp
