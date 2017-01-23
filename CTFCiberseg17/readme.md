@@ -7,3 +7,5 @@
 ## Reversing
 
 - [ReversingI](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/ReversingI.md): Solución al ReversingI
+- [ReversingIII](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/ReversingIII.md): Solución al ReversingIII
+
