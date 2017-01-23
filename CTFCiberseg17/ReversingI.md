@@ -56,4 +56,7 @@ objdump -M intel -S 48b366dada6f5ef8898058e7713b4ad3
   40056e:	c3                   	ret    
   40056f:	90                   	nop
 ```
+Cogemos los valores hexadecimales y tenemos:
+666c61677b73315f6c305f6834355f68336368305f63306e5f7234643472335f683167685f663176337d
+flag{s1_l0_h45_h3ch0_c0n_r4d4r3_h1gh_f1v3}
 
