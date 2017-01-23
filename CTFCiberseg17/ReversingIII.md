@@ -91,7 +91,7 @@ Dump of assembler code for function check_pass:
    0x0804863d <+82>:	add    DWORD PTR [ebp-0xc],0x1
    0x08048641 <+86>:	mov    eax,DWORD PTR [ebp-0xc]
    0x08048644 <+89>:	cmp    eax,DWORD PTR [ebp-0x14]			<--- Comprueba la condición de salida del bucle
-   0x08048647 <+92>:	jl     0x804862c <check_pass+65>		<--- Sigue en el bucle si es menor que la longitud, sino sale
+   0x08048647 <+92>:	jl     0x804862c <check_pass+65>		<--- Sigue en el bucle si es menor que la longitud, si no sale
    0x08048649 <+94>:	mov    eax,DWORD PTR [ebp-0x10]
    0x0804864c <+97>:	leave  
    0x0804864d <+98>:	ret    
