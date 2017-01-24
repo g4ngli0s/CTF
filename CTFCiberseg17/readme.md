@@ -2,10 +2,10 @@
 
 ## Exploiting
 
-- [ExplotingI](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/ExploitingI.md): Solución al ExploitingI
+- [Exploting I](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/ExploitingI.md): Solución al Exploiting I
 
 ## Reversing
 
-- [ReversingI](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/ReversingI.md): Solución al ReversingI
-- [ReversingIII](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/ReversingIII.md): Solución al ReversingIII
+- [Reversing I](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/ReversingI.md): Solución al Reversing I
+- [Reversing III](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/ReversingIII.md): Solución al Reversing III
 
