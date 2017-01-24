@@ -98,4 +98,68 @@ Dump of assembler code for function check_pass:
 End of assembler dump.
 ```
 
-Lo acabo mañana, era más largo de lo que pensaba :)
+Volvemos a la función "main" a ver que hace con ese valor devuelto en eax:
+
+```
+   0x080484f7 <+60>:	call   0x80485eb <check_pass>
+   0x080484fc <+65>:	add    esp,0x10
+   0x080484ff <+68>:	test   eax,eax                <--- Hace un AND consigo mismo
+   0x08048501 <+70>:	jne    0x804850a <main+79>    <--- Salta si no es igual a sí mismo? WTF!!!! Siempre va a saltar entonces.
+   0x08048503 <+72>:	call   0x8048589 <one>
+   0x08048508 <+77>:	jmp    0x804851a <main+95>
+   0x0804850a <+79>:	sub    esp,0xc
+   0x0804850d <+82>:	push   0x8048700
+   0x08048512 <+87>:	call   0x8048370 <puts@plt>
+   0x08048517 <+92>:	add    esp,0x10
+   0x0804851a <+95>:	mov    eax,0x0
+   0x0804851f <+100>:	mov    ecx,DWORD PTR [ebp-0x4]
+   0x08048522 <+103>:	leave  
+   0x08048523 <+104>:	lea    esp,[ecx-0x4]
+   0x08048526 <+107>:	ret    
+End of assembler dump.
+```
+
+Mmm... parece que es una pista falsa, ese valor no se usa para nada y el salto(JNE) siempre se va a realizar pues compara el valor consigo mismo. Parece que no quieren que lleguemos a llamar a la función "one". Habrá que manipular los flags o llamar a la función "one" desde el ret de "check_pass". Para esto último ponemos un breakpoint en ret de "check_pass" y modificamos el valor de $esp por el de la dirección de "one":
+
+```
+br *0x0804864d
+```
+
+Ahora ejecutamos hasta el breakpoint y ponemos el valor de "one" en $esp
+
+```
+r AAAAAA
+Starting program: /home/h4x0r/d1c53e27b0580fdf3e9addffc06359a5 AAAAAA
+Breakpoint 2, 0x0804864d in check_pass ()
+set {int}0xbffff29c = 0x8048589
+```
+Seguimos con la ejecucción del programa y nos devuelve una página web antes de provocar un "Segmentation fault":
+
+```
+>>> c
+Continuing.
+https://www.youtube.com/watch?v=dQw4w9WgXcQb
+Program received signal SIGSEGV, Segmentation fault.
+0xbffff540 in ?? ()
+```
+
+Estos tíos son unos cachondos, es el video de Rick Astley "Never Gonna Give You Up". Otra pista falsa, pero vamos por el buen camino. ¡Como molan los 80! :)
+Había otra función del binario llamada "two", ¿a la segunda será la vencida?. Hacemos lo mismo que antes pero con la dirección de "two" (0x08048527):
+
+```
+>>> set {int}0xbffff29c = 0x08048527
+>>> c
+Continuing.
+https://www.youtube.com/watch?v=PmHyI5vFlGob
+Program received signal SIGSEGV, Segmentation fault.
+0xbffff540 in ?? ()
+```
+
+¡Sorpresa! Otro video con la flag que buscábamos:
+```
+flag{ee1784da5ebc7941f9478e21d36a3e1b} 
+```
+
+He echado de menos una "tercera" función para que se cumpliera el dicho ;-)
+
+That's all folks!
