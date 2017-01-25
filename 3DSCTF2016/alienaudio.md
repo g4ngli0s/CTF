@@ -36,6 +36,11 @@ Then we can load each piece separately in baudline, choosing a sample rate of 44
 
 ![](https://github.com/g4ngli0s/pictures/blob/master/3DSCTF_alienaudio_Waterfall_CH1.png)
 
+The resulting flag is:
+```
+3DS{1_HOp3_Th4t_y0u_h4v3_mut3d_th3_aud10}
+```
+
 
 Note: other useful tool to perform this analysis in Windows environments is 'Sonic Visualiser':
 
