@@ -14,6 +14,7 @@
 - [Web II](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/Web%20II.md): Solución al Web II
 - [Web III](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/WEB%20III): Solución al Web III
 - [Web IV](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/Web%20IV.md): Solución al Web IV
+- [Web VI]https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/Web%20VI.md: Solución al Web VI
 
 ## Forensics
 
