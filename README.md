@@ -1,6 +1,6 @@
 # CTF
 
-Colgar las soluciones de los retos de las competiciones CTF en las que hemos participado:
+Colgar las soluciones (que nos apetezcan) de los CTF en los que hemos participado:
 
 - [3DSCTF2016](https://github.com/g4ngli0s/CTF/tree/master/3DSCTF2016): 
   Fecha: 17 al 24 Diciembre de 2016.
