@@ -13,4 +13,8 @@
 
 - [Web III](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/WEB%20III): Solución al Web III
 
+## Forensics
+
+- [Archivo Cifrado](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/Archivo%20cifrado.md): Solución al Archivo Cifrado
+
 
