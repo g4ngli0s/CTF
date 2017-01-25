@@ -8,4 +8,5 @@
 ## Stego
 
 - [base3200](https://github.com/g4ngli0s/CTF/blob/master/3DSCTF2016/base3200.md): Solución al reto "base3200".
+- [alienaudio](https://github.com/g4ngli0s/CTF/blob/master/3DSCTF2016/alienaudio.md): Solución al reto "alienaudio".
 
