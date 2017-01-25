@@ -17,4 +17,8 @@
 
 - [Archivo Cifrado](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/Archivo%20cifrado.md): Solución al Archivo Cifrado
 
+## Crypto
+
+- [Crypto II](https://github.com/g4ngli0s/CTF/blob/master/CTFCiberseg17/Crypto%20II.md): Solución al Crypto II
+
 
