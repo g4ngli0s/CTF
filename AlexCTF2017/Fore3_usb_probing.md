@@ -123,7 +123,7 @@ We use 'binwalk' to perform file carving on the binary, looking for hidden files
 $ binwalk -Me output2.bin 
 
 Scan Time:     2017-02-04 17:35:10
-Target File:   /home/isma/CTF/alexCTF17/forensics/fore3/output2.bin
+Target File:   /home/sn4fu/CTF/alexCTF17/forensics/fore3/output2.bin
 MD5 Checksum:  6c35fb1fe9e1cbde5618db7b2f3a9037
 Signatures:    344
 
@@ -159,7 +159,7 @@ Audit File
 
 Foremost started at Sat Feb  4 17:51:07 2017
 Invocation: foremost -v -i output2.bin 
-Output directory: /home/isma/CTF/alexCTF17/forensics/fore3/output
+Output directory: /home/sn4fu/CTF/alexCTF17/forensics/fore3/output
 Configuration file: /etc/foremost.conf
 Processing: output2.bin
 |------------------------------------------------------------------
@@ -191,10 +191,10 @@ Started at Sat Feb  4 17:51:43 2017
 Command line:
 scalpel -c scalpel_cfg.conf -o output_scalpel/ output2.bin 
 
-Output directory: /home/isma/CTF/alexCTF17/forensics/fore3/output_scalpel
+Output directory: /home/sn4fu/CTF/alexCTF17/forensics/fore3/output_scalpel
 Configuration file: scalpel_cfg.conf
 
-Opening target "/home/isma/CTF/alexCTF17/forensics/fore3/output2.bin"
+Opening target "/home/sn4fu/CTF/alexCTF17/forensics/fore3/output2.bin"
 
 The following files were carved:
 File		  Start			Chop		Length		Extracted From
