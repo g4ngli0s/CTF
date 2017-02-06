@@ -65,7 +65,7 @@ Options used:
 
 usb.capdata -> get packet data from the 'USB Leftover' field one, which is the one we are interested in.
 
-Al the extracted packets are stored in the 'raw' file, one packet on each line. In order to merge all the packets in a unique string, we edit the file and merge the lines, paying attention to append ':' between each two lines, so the hex format is not broken. This operation can be performed using any decent text editor such Notepad++.
+Al the extracted packets are stored in the 'raw' file, one packet on each line. In order to merge all the packets in a unique string, we edit the file and merge the lines, paying attention to append ':' between each two lines, so the hex format is not broken. This operation can be performed using any decent text editor such Notepad++. We save the results in a file named 'raw_agrupado'.
 
 Just in case we need to analize an isolated packet, we coud use the following tshark filter (i.e. for packet 101):
 ```
