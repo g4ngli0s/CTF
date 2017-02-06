@@ -1,12 +1,21 @@
-Ejecutando este segundo reto de reversing, nos encontramos con el clásico ejecutable que hay que pasarle un valor para averiguar el flag:
 
+Datos del ejecutable que nos proporcionan:
 
+```
+file ./re2 
+./re2: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=08fba98083e7c1f7171fd17c82befdfe1dcbcc82, stripped
+```
+
+Si lo ejecutamos nos encontramos con el clásico archivo que hay que pasarle un valor para averiguar el flag:
+
+```
 ~/Documents/AlexCTF/reversing# ./re2 
 Usage: ./re2 flag
+```
 
 Lo primero de todo es empezar con strings a ver si nos da alguna pista de por donde encaminarnos para resolver el reto.
 
-
+```
 strings ./re2 
 []A\A]A^A_
 L3t_ME_T3ll_Y0u_S0m3th1ng_1mp0rtant_A_{FL4G}_W0nt_b3_3X4ctly_th4t_345y_t0_c4ptur3_H0wev3r_1T_w1ll_b3_C00l_1F_Y0u_g0t_1t
@@ -18,11 +27,12 @@ Usage:
 zPLR
 GCC: (GNU) 6.1.1 20160721 (Red Hat 6.1.1-4)
 GCC: (GNU) 6.2.1 20160916 (Red Hat 6.2.1-2)
-
+```
 
 
 El punto de entrada según IDA está en la posición 0x0000000000400A60, donde colocaremos un breakpoint. Si seguimos la ejecucción vemos que ejecuta las librerias del sistema para cargar el ejecutable en memoria (__libc_start_main) y al final del todo llama al punto de entrada real de nuestro programa (0x0000000000400B89):
 
+```
 0x00007ffff71c023e __libc_start_main+126 call   rbp
 .....
 0x0000000000400dec ? call   0x400960
@@ -34,13 +44,17 @@ El punto de entrada según IDA está en la posición 0x0000000000400A60, donde c
 0x0000000000400970 ? call   rax
 .....
 
-En vez de pasar por todo este proceso tedioso, se puede ir directamente al strings y ver en IDA desde dónde se llama a la string "Usage" por ejemplo y partir de ahí hacía arriba para ver el punto de entrada.
+```
 
+En vez de pasar por todo este proceso tedioso, se puede ir directamente al strings y ver en IDA desde dónde se llama a la string "Usage" por ejemplo y partir de ahí hacía arriba para ver el punto de entrada y poner un breakpoint ahí:
+
+```
 br *0x0000000000400B89
+```
 
-A partír de aquí lo primero que nos encontramos es con una comprobación del número de argumentos que hemos pasado al programa. En este caso el número de argumento deben ser dos, que corresponden al nombre del programa en sí (argumento 1) y el texto que introduzcamos como intento de flag.
+A partír de aquí lo primero que nos encontramos es con una comprobación del número de argumentos que hemos pasado al programa. En este caso el número de argumento deben ser dos, que corresponden al nombre del programa en sí (argumento 1) y el texto que introduzcamos como intento de flag (argumento 2).
 
-
+```
 0x0000000000400b92 ? mov    DWORD PTR [rbp-0x64],edi   	<--- rdi contiene el número de parámetros que se le han pasado al programa (2)
 0x0000000000400b95 ? mov    QWORD PTR [rbp-0x70],rsi
 0x0000000000400b99 ? cmp    DWORD PTR [rbp-0x64],0x2 	<--- Aquí comprueba que le pases un argumento el programa. Si no es igual a 2 sigue al mensaje de usage (0x400b9f)
@@ -50,11 +64,14 @@ A partír de aquí lo primero que nos encontramos es con una comprobación del n
 0x0000000000400ba6 ? mov    esi,0x400f09				<--- Offset de  "Usage: "
 0x0000000000400bab ? mov    edi,0x602140				<--- Offset de std::cout
 0x0000000000400bb0 ? call   0x4009d0 <_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc@plt>
+```
 
-Siguiendo la ejecución del programa, reserva espacio y coloca nuestro argumento en memoria. Una vez hecho esto tenemos el bucle principal del programa. Lo que va a hacer en este bucle básicamente es ir comparando introducida por nosotros con los caracteres del flag. Lo importante a destacar es que los caracteres del flag no va a estar correlativos, sino se hubieran podido ver con el comando strings, sino que van a estar camuflados dentro de la memoria y vamos a acceder a ellos utilizando un array de offsets. Veamos un ejemplo de manera práctica.
+
+Siguiendo la ejecución del programa, reserva espacio y coloca nuestro argumento en memoria. Una vez hecho esto tenemos el bucle principal del programa. Lo que va a hacer en este bucle básicamente es ir comparando la cadena introducida por nosotros con los caracteres del flag. Lo importante a destacar es que los caracteres del flag no va a estar correlativos, sino se hubieran podido ver con el comando strings, sino que van a estar camuflados dentro de la memoria y vamos a acceder a ellos utilizando un array de offsets. Veamos un ejemplo de manera práctica:
 
 Caracteres de nuestro flag desordenados en memoria:
 
+```
 x/64xw 0x400e58
 0x400e58:	0x5f74334c	0x545f454d	0x5f6c6c33	0x5f753059
 0x400e68:	0x336d3053	0x6e316874	0x6d315f67	0x74723070
@@ -72,9 +89,11 @@ x/64xw 0x400e58
 0x400f28:	0x000000c0	0xfffffb48	0x00000090	0xfffffc3e
 0x400f38:	0x000000e8	0xfffffc5b	0x00000108	0xfffffc71
 0x400f48:	0x00000148	0xfffffdd2	0x000001f0	0xfffffe10
+```
 
 Matriz de offsets en memoria:
 
+```
 0x6020c0:	0x00000024	0x00000000	0x00000005	0x00000036
 0x6020d0:	0x00000065	0x00000007	0x00000027	0x00000026
 0x6020e0:	0x0000002d	0x00000001	0x00000003	0x00000000
@@ -83,13 +102,13 @@ Matriz de offsets en memoria:
 0x602110:	0x00000002	0x00000015	0x00000003	0x00000065
 0x602120:	0x00000000	0x00000029	0x00000044	0x00000044
 0x602130:	0x00000001	0x00000044	0x0000002b	0x00000000
-
+```
 
 Si queremos acceder al primer caracter del flag (indice=0), primero habrá que irse a la posición del array de offsets(0x6020c0) + indice(0), eso corresponde al valor 0x24. Este valor será nuestro offset para hallar el primer carácter del flag en nuestra memoria, en este caso 0x400e58 + 0x24 = 0x400e7c, que corresponde casualmente a la letra "A". Y como nuestro formato de flag es ALEXCTF{loquesea} tiene pinta de que vamos bien encaminados. Si seguimos el mismo procedimiento, los siguientes caracteres serían: 41 4c 45 58 43 54 46 7b 57 33 5f 4c 30 76 33 5f 43 5f 57 31 74 68 5f 43 4c 34 35 35 33 35 7d. Que se corresponde con el flag que buscábamos: ALEXCTF{W3_L0v3_C_W1th_CL45535}
 
-Aquí se puede ver lo que va haciendo el código ensamblador:
+Aquí se puede ver el mismo procedimiento en código ensamblador:
 
-
+```
 0x0000000000400c24 ? lea    rax,[rbp-0x50] 		<--- Inicio del bucle
 0x0000000000400c28 ? mov    rdi,rax
 0x0000000000400c2b ? call   0x4009f0 			<--- Función que nos da la posición del siguiente carácter de la cadena introducida por nosotros como segundo parámetro
@@ -126,12 +145,4 @@ Aquí se puede ver lo que va haciendo el código ensamblador:
 0x0000000000400c95 ? call   0x400b73
 0x0000000000400c9a ? mov    ebx,0x0
 0x0000000000400c9f ? lea    rax,[rbp-0x50]
-
-
-
-
-
-
-
-
-
+```
