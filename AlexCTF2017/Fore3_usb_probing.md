@@ -238,14 +238,3 @@ Total MB processed: 0
 Overall performance: 0.705142 MBytes/sec (0.352571 MBytes/sec/thread)
 Total email features found: 0
 ```
-
-
-
-
-
-
-
-
-
-
-
