@@ -104,7 +104,7 @@ Matriz de offsets en memoria:
 0x602130:	0x00000001	0x00000044	0x0000002b	0x00000000
 ```
 
-Si queremos acceder al primer caracter del flag (indice=0), primero habrá que irse a la posición del array de offsets(0x6020c0) + indice(0), eso corresponde al valor 0x24. Este valor será nuestro offset para hallar el primer carácter del flag en nuestra memoria, en este caso 0x400e58 + 0x24 = 0x400e7c, que corresponde casualmente a la letra "A". Y como nuestro formato de flag es ALEXCTF{loquesea} tiene pinta de que vamos bien encaminados. Si seguimos el mismo procedimiento, los siguientes caracteres serían: 41 4c 45 58 43 54 46 7b 57 33 5f 4c 30 76 33 5f 43 5f 57 31 74 68 5f 43 4c 34 35 35 33 35 7d. Que se corresponde con el flag que buscábamos: ALEXCTF{W3_L0v3_C_W1th_CL45535}
+Si queremos acceder al primer caracter del flag (indice=0), primero habrá que irse a la posición del array de offsets(0x6020c0) + indice(0), eso corresponde al valor 0x24. Este valor será nuestro offset para hallar el primer carácter del flag en memoria, en este caso 0x400e58 + 0x24 = 0x400e7c, que corresponde casualmente a la letra "A". Y como nuestro formato de flag es ALEXCTF{loquesea} tiene pinta de que vamos bien encaminados. Si seguimos el mismo procedimiento, los siguientes caracteres serían: 4c 45 58 43 54 46 7b 57 33 5f 4c 30 76 33 5f 43 5f 57 31 74 68 5f 43 4c 34 35 35 33 35 7d. Que se corresponde con el flag que buscábamos: ALEXCTF{W3_L0v3_C_W1th_CL45535}
 
 Aquí se puede ver el mismo procedimiento en código ensamblador:
 
@@ -145,4 +145,10 @@ Aquí se puede ver el mismo procedimiento en código ensamblador:
 0x0000000000400c95 ? call   0x400b73
 0x0000000000400c9a ? mov    ebx,0x0
 0x0000000000400c9f ? lea    rax,[rbp-0x50]
+```
+
+Eso es todo y recordad que estas posiciones de memoria serán diferentes en nuestro ordenador. Si queréis ver todo el código completo en ensamblador, objdump es vuestro amigo:
+
+```
+objdump -M intel -S ./re2
 ```
