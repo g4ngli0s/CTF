@@ -25,7 +25,7 @@ It seems that there are 11 ciphertexts which have been cyphered using the same O
 
 A known attack in this kind of scenario is the 'Many Time Pad Attack' described here:
 
-#Many Time Pad Attack - Crib Drag
+###Many Time Pad Attack - Crib Drag
 
 http://travisdazell.blogspot.com.es/2012/11/many-time-pad-attack-crib-drag.html
 
@@ -38,7 +38,7 @@ The phases of the attack are:
 5 When the result from step 4 is readable text, we guess the English word and expand our crib search.
 6 If the result is not readable text, we try an XOR of the crib word at the next position.
 
-There is an implementation of this attack using Pythpn:
+There is an implementation of this attack using Python:
 
 https://github.com/Jwomers/many-time-pad-attack/blob/master/attack.py
 
@@ -46,3 +46,42 @@ According to the author:
 
 " This code investigates the properties of the one time pad - specifically that it can easily be broken if the same key is used more than once!
 Given 10 ciphertexts encrypted using the same key, we can break the encryption, and generate all the plaintexts"
+
+We just modify the script so the strings c[1..10] are initialized with our own 10 first ciphertexts.
+
+Besides that, we configure an additional line at the end of ths script in order to print the reversed OTP key ('final_key_hex'):
+
+```
+print final_key_hex
+```
+
+We execute the script:
+
+```
+# ./script.py 
+ncry*tion*s**e*e *lwa*s.
+414c45580054467b48005200004700455300544845004b45007d00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+```
+
+So the computed OTP key in hex format is:
+
+```
+414c45580054467b48005200004700455300544845004b45007d
+```
+
+Upon converting the hex string to ASCII, we get:
+
+```
+ALEX[0]TF{H[0]R[0][0]G[0]ES[0]THE[0]KE[0]}
+```
+
+So we can infer that the flag is:
+
+```
+ALEXCTF{HERE_GOES_THE_KEY}
+```
+
+
+
+
+
