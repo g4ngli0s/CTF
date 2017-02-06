@@ -7,7 +7,7 @@ If I tell you what version of python I used .. where is the fun in that?
 
 En este caso nos proporcionan un archivo pre-compilado en python "unvm_me.pyc". Lo decompilamos con cualquiera de las herramientas que hay disponibles, yo he usado "easypythondecompiler" y nos da el siguiente código:
 
-```
+```python
 # Embedded file name: unvm_me.py
 import md5
 md5s = [174282896860968005525213562254350376167L,
