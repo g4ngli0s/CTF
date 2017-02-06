@@ -1,9 +1,9 @@
-### ===========================================================================
+### ========================================
 ### CR2: Many time secrets (100 pts)
 ### CTF: AlexCTF 2017
 ### URL: https://ctf.oddcoder.com/
 ### CAT: crypto
-###  ===========================================================================
+### ========================================
 
 This time Fady learned from his old mistake and decided to use onetime pad as his encryption
 technique, but he never knew why people call it one time pad!
