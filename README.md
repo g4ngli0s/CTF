@@ -8,3 +8,6 @@ Colgar las soluciones (que nos apetezcan) de los CTF en los que hemos participad
 - [CTFCiberseg17](https://github.com/g4ngli0s/CTF/tree/master/CTFCiberseg17):
   Fecha: 20 al 23 de Enero de 2017.
   Web: https://ctf.ciberseg.uah.es/home
+- [AlexCTF2017](https://github.com/g4ngli0s/CTF/tree/master/AlexCTF2017):
+  Fecha: 3 al 6 de Febrero de 2017.
+  Web: https://ctf.oddcoder.com/
