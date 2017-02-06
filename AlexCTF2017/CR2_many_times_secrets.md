@@ -25,5 +25,24 @@ It seems that there are 11 ciphertexts which have been cyphered using the same O
 
 A known attack in this kind of scenario is the 'Many Time Pad Attack' described here:
 
-Many Time Pad Attack - Crib Drag
+#Many Time Pad Attack - Crib Drag
+
 http://travisdazell.blogspot.com.es/2012/11/many-time-pad-attack-crib-drag.html
+
+The phases of the attack are:
+
+1 Guess a word that might appear in one of the messages
+2 Encode the word from step 1 to a hex string
+3 XOR the two cipher-text messages
+4 XOR the hex string from step 2 at each position of the XOR of the two cipher-texts (from step 3)
+5 When the result from step 4 is readable text, we guess the English word and expand our crib search.
+6 If the result is not readable text, we try an XOR of the crib word at the next position.
+
+There is an implementation of this attack using Pythpn:
+
+https://github.com/Jwomers/many-time-pad-attack/blob/master/attack.py
+
+According to the author:
+
+" This code investigates the properties of the one time pad - specifically that it can easily be broken if the same key is used more than once!
+Given 10 ciphertexts encrypted using the same key, we can break the encryption, and generate all the plaintexts"
