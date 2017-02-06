@@ -132,7 +132,7 @@ DECIMAL       HEXADECIMAL     DESCRIPTION
 53248         0xD000          PNG image, 460 x 130, 8-bit/color RGBA, interlaced
 ```
 
-Binwalk finds a hideen PNG image inside the binary. If it is not extracted with the previous command, we can force it using:
+Binwalk finds a hidden PNG image inside the binary. If it is not extracted with the previous command, we can force it using:
 
 ```
 $ binwalk -D 'png image:png' output2.bin 
