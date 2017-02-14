@@ -1,7 +1,7 @@
 #### Enunciado
 
 Te daban el código fuente de dos ELF, uno de 32 bits y otro de 64 bits, y un servicio corriendo en un servidor donde tenías que enviar un 
-exploit remoto para leer el archivo /home/ctf/flag.txt
+exploit remoto para leer el archivo /home/ctf/flag.txt. No había ni que controlar el EIP, me imagino que por eso puntuaban tan poco.
 
 #### Solución
 
