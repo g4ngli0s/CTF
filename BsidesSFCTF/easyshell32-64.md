@@ -213,6 +213,6 @@ Hello wolrd!
 
 Estoy probando esto mismo con 64 bits para un programa en ensamblador que lea el /etc/passwd, de momento me da "Segmentation fault", cuando consiga resolverlo lo colgaré aquí para ver un ejemplo en 64 bits. Creo que tiene que ver en como se pasan los parámetros en 64 bits, que no utiliza la pila (los primeros 4 parámetros van en los registros RCX, RDX, R8, R9, el resto se pasan por la pila).
 
-That's all folks!
+*That's all folks!*
 
 
