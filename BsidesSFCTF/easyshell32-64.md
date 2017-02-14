@@ -1,11 +1,17 @@
+#### Enunciado
+
 Te daban el código fuente de dos ELF, uno de 32 bits y otro de 64 bits, y un servicio corriendo en un servidor donde tenías que enviar un 
 exploit remoto para leer el archivo /home/ctf/flag.txt
 
-Ambos casos se solucionan de la misma manera, creando un shellcode para leer archivos. Sin embargo, para el caso de 32 bits tendremos la ayuda de metasploit y usaremos el payload de msfvenom de metasploit que te permite leer un archivo. En el caso de 64 bits te puedes programar en ensamblador un shellcode o bien puedes usar uno de los que hay en shell-storm: http://shell-storm.org/shellcode/files/shellcode-878.php
+#### Solución
+
+Ambos casos se solucionan de la misma manera, creando un shellcode para leer archivos. Sin embargo, para el caso de 32 bits tendremos la inestimable ayuda de metasploit y usaremos el payload de msfvenom de metasploit que te permite leer un archivo. En el caso de 64 bits te puedes programar en ensamblador un shellcode o bien puedes usar uno de los que hay en shell-storm: http://shell-storm.org/shellcode/files/shellcode-878.php
 
 
-
+### Solución 32 bytes
 easyshell32
+
+
 
 ```python
 #!/usr/bin/env python
