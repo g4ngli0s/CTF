@@ -91,7 +91,7 @@ msfvenom -p linux/x64/exec CMD="cat /home/ctf/flag.txt" -n 16 -b '\x00\x20\x0d\x
 
 #### Teoría básica de shellcodes
 
-¿Qué son estos shellcodes? 
+#####¿Qué son estos shellcodes? 
 
 El shellcode no es más que los opcodes de las instrucciones de lenguaje ensamblador. Hagamos un ejemplo con el clásico "Hola mundo" en ensamblador:
 
@@ -126,7 +126,7 @@ MESSAGE:
 En este código se utiliza el clásico jmp-ret para dejar en la pila la dirección de memoria de la variable a la que queremos acceder. En este caso "Hello, World!". Está explicado este método en los comentarios. 
 
 
-¿Cómo se genera?
+#####¿Cómo se genera?
 
 Una vez que tenemos el código ensamblador, lo compilamos y creamos el ejecutable:
 
@@ -137,8 +137,75 @@ ld -o hello hello.o
 ./hello 
 Hello, World!
 ```
+Ahora para sacar el conjuto de opcodes de las instrucciones de ensamblador bastaría con ejecutar los siguiente:
+
+```
+objdump -M intel -d hello
+
+hello:     file format elf32-i386
+
+Disassembly of section .text:
+
+08048060 <_start>:
+ 8048060:	eb 1e                	jmp    8048080 <MESSAGE>    ---> De aquí cogeríamos '\xeb\x1e'
+
+08048062 <GOBACK>:
+ 8048062:	b8 04 00 00 00      	mov    eax,0x4              ---> De aquí cogeríamos '\xb8\x04\x00\x00\x00'
+ 8048067:	bb 01 00 00 00       	mov    ebx,0x1              ---> De aquí cogeríamos '\xbb\x01\x00\x00\x00'
+ 804806c:	59                   	pop    ecx                  ---> De aquí cogeríamos '\x59'
+ 804806d:	ba 0f 00 00 00       	mov    edx,0xf              ---> Y así sucesivamente...
+ 8048072:	cd 80                	int    0x80                 
+ 8048074:	b8 01 00 00 00       	mov    eax,0x1
+ 8048079:	bb 00 00 00 00       	mov    ebx,0x0
+ 804807e:	cd 80                	int    0x80
+
+08048080 <MESSAGE>:
+ 8048080:	e8 dd ff ff ff       	call   8048062 <GOBACK>
+ 8048085:	48                   	dec    eax                      <--- A partir de aquí hasta el final, estás instrucciones no se ejecutan.
+ 8048086:	65 6c                	gs ins BYTE PTR es:[edi],dx     <--- En realidad estas instrucciones es como interpreta objdump los caracteres de la variable "Hello, World!"
+ 8048088:	6c                   	ins    BYTE PTR es:[edi],dx     <--- Son la traducción a ensamblador de las valores ascii de la cadena.
+ 8048089:	6f                   	outs   dx,DWORD PTR ds:[esi]
+ 804808a:	2c 20                	sub    al,0x20
+ 804808c:	57                   	push   edi
+ 804808d:	6f                   	outs   dx,DWORD PTR ds:[esi]
+ 804808e:	72 6c                	jb     80480fc <MESSAGE+0x7c>
+ 8048090:	64                   	fs
+ 8048091:	21                   	.byte 0x21
+ 8048092:	0d                   	.byte 0xd
+ 8048093:	0a                   	.byte 0xa
+```
+
+Si quisieramos probarlo a través de un programa de C, sólo tendríamos que ir colocando por orden nuestro shellcode como si fuera un buffer y probar si funciona:
+
+```
+const char code[] = 
+
+    "\xe9\x1e\x00\x00\x00"  //          jmp    8048083 <MESSAGE>
+    "\xb8\x04\x00\x00\x00"  //          mov    $0x4,%eax
+    "\xbb\x01\x00\x00\x00"  //          mov    $0x1,%ebx
+    "\x59"                  //          pop    %ecx
+    "\xba\x0f\x00\x00\x00"  //          mov    $0xf,%edx
+    "\xcd\x80"              //          int    $0x80
+    "\xb8\x01\x00\x00\x00"  //          mov    $0x1,%eax
+    "\xbb\x00\x00\x00\x00"  //          mov    $0x0,%ebx
+    "\xcd\x80"              //          int    $0x80
+    "\xe8\xdd\xff\xff\xff"  //          call   8048065 <GOBACK>
+    "Hello wolrd!\r\n";     // OR       "\x48\x65\x6c\x6c\x6f\x2c\x20\x57"
+                            //          "\x6f\x72\x6c\x64\x21\x0d\x0a"
 
 
+int main(int argc, char **argv)
+{
+    (*(void(*)())code)();
+
+    return 0;
+}
+```
+```
+gcc test.c -o test
+./test
+Hello wolrd!
+```
 
 
 
