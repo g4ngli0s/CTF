@@ -175,7 +175,7 @@ Disassembly of section .text:
  8048093:	0a                   	.byte 0xa
 ```
 
-Si quisieramos probarlo a través de un programa de C, sólo tendríamos que ir colocando por orden nuestro shellcode como si fuera un buffer y probar si funciona:
+Si quisieramos probarlo a través de un programa de C, sólo tendríamos que ir colocando por orden nuestro shellcode en el array code y probar si funciona. Es importante hacer el array constante para que se guarda en una dirección de memoria que tenga permiso de ejecucción, sino daría un **Segmentaion fault.**
 
 ```
 const char code[] = 
@@ -207,22 +207,8 @@ gcc test.c -o test
 Hello wolrd!
 ```
 
+Estoy probando esto mismo con 64 bits para un programa en ensamblador que lea el /etc/passwd, de momento me da "Segmentation fault", cuando consiga resolverlo lo colgaré aquí para ver un ejemplo en 64 bits. Creo que tiene que ver en como se pasan los parámetros en 64 bits, que no utiliza la pila (los primeros 4 parámetros van en los registros RCX, RDX, R8, R9, el resto se pasan por la pila).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+That's all folks!
 
 
