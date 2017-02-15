@@ -309,6 +309,111 @@ Now we hexedit our binary file to get further details about what's happening:
 000002F8   92 CE 22 01  FD F5 25 92  41 95 74 49  4D 45 07 E1  02 02 05 0D  35 24 D3 81  E9 00 00 2C  08 49 44 41  54 78 DA ED  9D 77 9C 1B  .."...%.A.tIME......5$.....,.IDATx...w..
 ```
 
+In the ASCII pane, after the valid chunk 'pHYs' we see another valid chunk named 'tIME', but the 'pngcheck' tool reports that between them there is what seems to be an invalid chunk '8C 89 01'. From the beginning of this invalid string to the beginning of the 'tIME' string, there are exactly 9 bytes of data. We see that those are the first 9 bytes of packet 51.
+
+Our second hypothesis is that those first 9 bytes of the packet are garbage, dnscat2 overhead or other kind of data which may not be of interest. So we decide to delete the first 9 bytes of each packet.
+
+On the other hand, if we delete those first 9 bytes on each packet, we rapidly see that there are duplicate packets, which seems consistent with the clue we found using 'strings':
+
+'Good luck! That was dnscat2 traffic on a flaky connection with lots of re-transmits.'
+
+-----
+## (7) REBUILDING THE BINARY FILE TAKING INTO ACCOUNT THE EVIDENCES FOUND
+
+We will rebuild again the binary file but this time taking into account our new hypothesis from the evidences we just found:
+
+- Consider DNS queries only.
+- Delete the first 9 bytes on each packet.
+- Delete the duplicated packets.
+
+First, we merge all the DNS queries in a single file:
+```
+# cat queries_CNAME.txt queries_MX.txt queries_TXT.txt > fusion.txt
+```
+
+Second, we generate a new file with all the payloads ordered by frame number:
+```
+# sort -k1n,3 fusion.txt > fusion_ordenado.txt
+```
+We edit this file and delete all packets but [50..339], which are those we know that contain the PNG file.
+
+Then we modify our script (now 'bsidessf17_dnscap_script3.pl') to delete the first 9 bytes on each packet:
+```
+#!/usr/bin/perl
+#
+# bsidessf17 - dnscap
+#
+# script de volcado de datos de paquetes
+# elimina los primeros 9 bytes de cada paquete
+#
+# fusion_ordenado.txt tiene el formato: <paquete>\t<datos>
+#
+# Rev.20170212 by sn4fu
+
+use strict;
+use warnings;
+
+my $fichero = 'fusion_ordenado.txt';
+open(my $fh,$fichero)
+or die "No se ha encontrado el fichero '$fichero' $!";
+
+while (my $linea = <$fh>) {
+ chomp $linea;										# quitar CR
+ my ($paquete, $datos) = split /\t/, $linea;		# parsear usando TAB como separador
+ my @cadenas = split /\./, $datos;					# parsear las partes de la cadena de datos separadas con '.'
+ my $cadena_sobrante1 = 'org';						# las cadenas 'org' no nos interesan
+ @cadenas = grep {!/$cadena_sobrante1/} @cadenas;
+ my $cadena_sobrante2 = 'skullseclabs';
+ @cadenas = grep {!/$cadena_sobrante2/} @cadenas;	# las cadenas 'skullseclabs' no no sinteresan
+ $cadenas[0] = substr ($cadenas[0], 18);			# a la primera cadena de cada paquete le quitamos los 9 primeros bytes (18 simbolos HEX)
+ foreach (@cadenas)
+   {
+      print "$_\n";									# imprimir los contenidos HEX de interés
+   }
+}
+```
+
+We execute the script and dump the results to the file 'hex.txt':
+```
+# ./script_dnscap3.pl > hex.txt
+```
+
+Now we delete the duplicate payloads using 'awk':
+```
+# awk '!x[$0]++' hex.txt > hex2.txt
+```
+
+Then, we delete the carriage returns at the end of each line:
+```
+# tr -d '\r\n' < hex2.txt > hex3.txt
+```
+
+We rebuild the binary using 'xxd':
+```
+# xxd -p -r hex3.txt > hex.bin
+```
+
+And finally we use 'binwalk' to carve the PNG file:
+```
+# binwalk -D 'png image:png' hex.bin
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+95            0x5F            PNG image, 256 x 256, 8-bit gray+alpha, non-interlaced
+206           0xCE            Zlib compressed data, best compression
+```
+
+We check the resulting PNG with 'pngcheck' and it reports an error regarding some garbage after the IEND chunk (which may be deleted using hexedit):
+```
+# pngcheck 5F.png 
+5F.png  additional data after IEND chunk
+ERROR: 5F.png
+```
+
+However, this time we are ableto display the PNG file and get the flag:
+
+FLAG:b91011fc
+
 
 
 
