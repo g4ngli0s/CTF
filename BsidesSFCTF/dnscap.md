@@ -410,11 +410,11 @@ We check the resulting PNG with 'pngcheck' and it reports an error regarding som
 ERROR: 5F.png
 ```
 
-However, this time we are ableto display the PNG file and get the flag:
+However, this time we are able to display the PNG file and get the flag:
 
 FLAG:b91011fc
 
-
+![alt text](https://github.com/g4ngli0s/pictures/blob/master/bsidessf17_dnscap_flag.png)
 
 
 
