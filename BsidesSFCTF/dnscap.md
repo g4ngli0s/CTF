@@ -98,6 +98,45 @@ Here is how this new file looks like:
 ------
 ## (2) ANALYSIS OF THE CAPTURED DATA
 
-In order to analyze the data we have just extracted, we use the following Perl script (yeah, there is life beyond Python!):
+In order to analyze the data we have just extracted, we use the following Perl script named 'bsidessf17_dnscap_script1.pl' (yeah, there is life beyond Python!):
+
+```
+#!/usr/bin/perl
+#
+# bsidessf17 - dnscap
+#
+# script de analisis inicial
+#
+# fusion_ordenado.txt tiene el formato: <paquete>\t<datos>
+#
+# Rev.20170212 by sn4fu
+
+use strict;
+use warnings;
+use 5.016;
+
+my $fichero = 'fusion_ordenado.txt';
+open(my $fh,$fichero)
+or die "No se ha encontrado el fichero '$fichero' $!";
+
+while (my $linea = <$fh>) {
+ chomp $linea;                                          # quitar CR
+ my ($paquete, $datos) = split /\t/, $linea;            # parsear usando TAB como separador
+ print "$paquete\n";                                    # imprimir numero de paquete
+ print "$datos\n";                                      # imprimir datos del paquete
+ my @cadenas = split /\./, $datos;                      # parsear las partes de la cadena de datos separadas con '.'
+ my $cadena_sobrante1 = 'org';                          # las cadenas 'org' no nos interesan
+ @cadenas = grep {!/$cadena_sobrante1/} @cadenas;
+ my $cadena_sobrante2 = 'skullseclabs';                 # las cadenas 'skullseclabs' no no sinteresan
+ @cadenas = grep {!/$cadena_sobrante2/} @cadenas;
+ foreach (@cadenas)
+   {
+      print "$_\n";                                     # imprimir la cadena HEX
+      say (pack "H*",$_);                               # traducir la cadena a ASCII
+   }
+}
+```
+This script reads each line (packet) of the file, parses the frame number and the payload and parses the payload as well in order to extract the strings separated by '.'. Then it deletes all the strings 'org' and 'skullseclabs' (we are interested just in the hex strings) and converts the hex strings to ASCII.
+
 
 
