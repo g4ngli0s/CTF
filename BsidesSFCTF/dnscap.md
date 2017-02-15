@@ -76,6 +76,7 @@ Then we merge all the files in a single one:
 And generate a new merged file with all the packets ordered by frame number (first column in the file):
 ```
 # sort -k1n,3 fusion.txt > fusion_ordenado.txt
+```
 
 Here is how this new file looks like:
 ```
@@ -94,4 +95,9 @@ Here is how this new file looks like:
 13      aeb101a621010ac393.skullseclabs.org
 /....../
 ```
+------
+## (2) ANALYSIS OF THE CAPTURED DATA
+
+In order to analyze the data we have just extracted, we use the following Perl script (yeah, there is life beyond Python!):
+
 
