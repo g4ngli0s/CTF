@@ -289,6 +289,26 @@ Using this application, an attacker can establish a hidden tunnel inside normal 
 
 If this is the case, the data of the transmitted PNG file must be in one way only, more precisely within the DNS QUERIES. Considering this hypothesis, we will discard all the DNS RESPONSES.
 
+Just to add more reliability to our hypothesis, we repeat the previous process with the following scenarios, to no avail (we get new corrupted images:
+
+- CNAME queries only.
+- CNAME queries and responses.
+
+-----
+## (6) DETAILED ANALYSIS OF THE BINARY FILE
+
+As we saw previously, the chunk with invalid name is in the first portion of packet #51. We look for information about valid chunk numbers and find the following:
+
+http://purepng.readthedocs.io/en/latest/chunk.html
+
+Now we hexedit our binary file to get further details about what's happening:
+```
+00000280   61 70 2E 70  6E 67 00 BB  CF 01 FD F5  25 32 41 95  00 00 2C ED  80 01 00 03  89 50 4E 47  0D 0A 1A 0A  00 00 00 0D  49 48 44 52  ap.png......%2A...,......PNG........IHDR
+000002A8   00 00 01 00  00 00 01 00  08 04 00 00  00 F6 7B 60  ED 00 00 00  04 67 41 4D  41 00 01 86  A0 31 E8 96  5F 00 00 00  02 62 4B 47  ..............{`.....gAMA....1.._....bKG
+000002D0   44 00 FF 87  8F CC BF 00  00 00 09 70  48 59 73 00  00 0B 13 00  00 0B 13 01  00 9A 9C 18  00 00 00 07  8C 89 01 FD  F5 41 95 25  D..........pHYs......................A.%
+000002F8   92 CE 22 01  FD F5 25 92  41 95 74 49  4D 45 07 E1  02 02 05 0D  35 24 D3 81  E9 00 00 2C  08 49 44 41  54 78 DA ED  9D 77 9C 1B  .."...%.A.tIME......5$.....,.IDATx...w..
+```
+
 
 
 
