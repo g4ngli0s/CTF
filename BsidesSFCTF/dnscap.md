@@ -138,5 +138,37 @@ while (my $linea = <$fh>) {
 ```
 This script reads each line (packet) of the file, parses the frame number and the payload and parses the payload as well in order to extract the strings separated by '.'. Then it deletes all the strings 'org' and 'skullseclabs' (we are interested just in the hex strings) and converts the hex strings to ASCII.
 
+We execute our script and get the following results:
+
+Observing the packet #49, there is a reference to a file named '/tmp/dnscap.png'.
+
+On the other hand, in the packet #50 we see the magic number of a PNG file (89 50 4E 47 0D 0A 1A 0A):
+```
+49
+^A:^A<FD><F5>A}%2^@^@^@^T^@^A^@^C/tmp/dnscap.png^@
+49
+x^\^A<FD><F5>%2A}
+50
+<BB><CF>^A<FD><F5>%2A<95>^@^@,<ED><80>^A^@^C<89>PNG
+^Z
+^@^@^@^MI
+```
+
+Contents of packet 50:
+```
+50      bbcf01fdf52532419500002ced8001000389504e470d0a1a0a0000000d49.48445200000100000001000804000000f67b60ed0000000467414d410001.86a031e8965f00000002624b474400ff878fccbf00000009704859730000.0b1300000b1301009a9c1800000007.skullseclabs.org
+```
+
+We know that a PNG file is made of chunks and that in one image of this type we must find at least chunks of the following types: one IHDR (49 48 44 52), one or more IDAT (49 44 41 54) and one IEND (49 45 4E 44).
+
+We look for the IEND chunk and find it on packet #339:
+```
+339     b8a101fdf551d24195315432313a30343a30302d30383a3030e382804f00.00002574455874646174653a6d6f6469667900323031372d30322d303154.32313a30343a30302d30383a303092df38f30000000049454e44ae426082.skullseclabs.org
+```
+
+So we can conclude that most probably there is a PNG image hidden between packets 50 and 339.
+
+
+
 
 
