@@ -168,6 +168,61 @@ We look for the IEND chunk and find it on packet #339:
 
 So we can conclude that most probably there is a PNG image hidden between packets 50 and 339.
 
+-----
+## (3) REBUILDING A BINARY FILE
+
+We will try to rebuild a binary file from the extrated hex strings from the payloads of the packets. We modify our script (now 'bsidessf17_dnscap_script2.pl') to dump the extrated hex strings to a file:
+
+```
+#!/usr/bin/perl
+#
+# bsidessf17 - dnscap
+#
+# script de volcado de datos de paquetes
+#
+# fusion_ordenado.txt tiene el formato: <paquete>\t<datos>
+#
+# Rev.20170212 by sn4fu
+
+use strict;
+use warnings;
+use 5.016;
+
+my $fichero = 'fusion_ordenado.txt';
+open(my $fh,$fichero)
+or die "No se ha encontrado el fichero '$fichero' $!";
+
+while (my $linea = <$fh>) {
+ chomp $linea;										# quitar CR
+ my ($paquete, $datos) = split /\t/, $linea;		# parsear usando TAB como separador
+ my @cadenas = split /\./, $datos;					# parsear las partes de la cadena de datos separadas con '.'
+ my $cadena_sobrante1 = 'org';						# las cadenas 'org' no nos interesan
+ @cadenas = grep {!/$cadena_sobrante1/} @cadenas;
+ my $cadena_sobrante2 = 'skullseclabs';
+ @cadenas = grep {!/$cadena_sobrante2/} @cadenas;	# las cadenas 'skullseclabs' no no sinteresan
+ foreach (@cadenas)
+   {
+      print "$_\n";									# imprimir los contenidos HEX de interés
+   }
+}
+```
+
+We execute the script and dump the results to the 'hex.txt' file:
+```
+# ./script_dnscap2.pl > hex.txt
+```
+
+Due to the fact that this file contains a string on each line, we process the file to delete all carriage returns:
+```
+# tr -d '\r\n' < hex.txt > hex2.txt
+```
+
+And finally we use the 'xxd' utility to convert the hex file to binary:
+```
+# xxd -p -r hex2.txt > hex2.bin
+```
+
+
 
 
 
