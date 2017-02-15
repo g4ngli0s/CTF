@@ -222,6 +222,78 @@ And finally we use the 'xxd' utility to convert the hex file to binary:
 # xxd -p -r hex2.txt > hex2.bin
 ```
 
+-----
+## (4) FILE CARVING IN THE REBUILT BINARY
+
+We use 'binwalk' to try to extract the PNG file inside our rebuilt binary:
+```
+# binwalk -D 'png image:png' hex2.bin
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+664           0x298           PNG image, 256 x 256, 8-bit gray+alpha, non-interlaced
+```
+
+But unfortunately we are not able to display the file because we get some errors, so we decide to use the 'pngcheck' utility to get more information about the extracted PNG:
+```
+# pngcheck -v _hex2.bin.extracted/298.png 
+File: _hex2.bin.extracted/298.png (19159 bytes)
+  chunk IHDR at offset 0x0000c, length 13
+    256 x 256 image, 16-bit grayscale+alpha, non-interlaced
+  chunk gAMA at offset 0x00025, length 4: 1.0000
+  chunk bKGD at offset 0x00035, length 2
+    gray = 0x00ff
+  chunk pHYs at offset 0x00043, length 9: 2835x2835 pixels/meter (72 dpi)
+  invalid chunk name "???" (ffffff8c ffffff89 01 fffffffd)
+ERRORS DETECTED in _hex2.bin.extracted/298.png
+```
+
+We see that there is a chunk in the PNG file with an invalid name (8C 89 01 in hex). Further investigation reveals that this string is at the beginning of packet #51 (the second packet containing data of the PNG file).
+
+Then we use 'strings' on the binary and see some interesting data:
+```
+console (sirvimes)
+Welcome to dnscap! The flag is below, have fun!!
+!command (sirvimes)
+/...../
+/tmp/dnscap.png
+IHDR
+gAMA
+bKGD
+        pHYs
+tIME
+IDATx
+HBBH
+/...../
+%tEXtdate:create
+2017-02-0:
+1T21:04:00-08:00
+%tEXtdate:modify
+2017-02-01T21:04:00-08:00
+IEND
+1T21:04:00-08:00
+%tEXtdate:modify
+2017-02-01T21:04:00-08:00
+IEND
+Session killed: The driver requested it be stopped!
+console (sirvimes)
+Good luck! That was dnscat2 traffic on a flaky connection with lots of re-transmits. Seriously, 
+good luck. :)
+```
+
+It looks like someone tried to send a PNG fie using an application called 'dnscat2':
+
+https://github.com/iagox86/dnscat2
+
+Using this application, an attacker can establish a hidden tunnel inside normal DNS traffic. In a real environment, this tool can be used to establish stealth comms with a C&C server or for data exfiltration.
+
+If this is the case, the data of the transmitted PNG file must be in one way only, more precisely within the DNS QUERIES. Considering this hypothesis, we will discard all the DNS RESPONSES.
+
+
+
+
+
+
 
 
 
