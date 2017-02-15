@@ -38,31 +38,60 @@ Using tshark, we can extract all those packets in separated files:
 
 TXT QUERIES
 ```
-tshark -r dnscap.pcap -Y '(dns.qry.type == 16) and not (dns.txt)' -T fields -e frame.number -e dns.qry.name > queries_TXT.txt
+# tshark -r dnscap.pcap -Y '(dns.qry.type == 16) and not (dns.txt)' -T fields -e frame.number -e dns.qry.name > queries_TXT.txt
 ```
 
 TXT RESPONSES
 ```
-tshark -r dnscap.pcap -Y 'dns.txt' -T fields -e frame.number -e dns.txt > responses_TXT.txt
+# tshark -r dnscap.pcap -Y 'dns.txt' -T fields -e frame.number -e dns.txt > responses_TXT.txt
 ```
 
 MX QUERIES
 ```
-tshark -r dnscap.pcap -Y '(dns.qry.type == 15) and not (dns.mx.mail_exchange)' -T fields -e frame.number -e dns.qry.name > queries_MX.txt
+# tshark -r dnscap.pcap -Y '(dns.qry.type == 15) and not (dns.mx.mail_exchange)' -T fields -e frame.number -e dns.qry.name > queries_MX.txt
 ```
 
 MX RESPONSES
 ```
-tshark -r dnscap.pcap -Y 'dns.mx.mail_exchange' -T fields -e frame.number -e dns.mx.mail_exchange > responses_MX.txt
+# tshark -r dnscap.pcap -Y 'dns.mx.mail_exchange' -T fields -e frame.number -e dns.mx.mail_exchange > responses_MX.txt
 ```
 
 CNAME QUERIES
 ```
-tshark -r dnscap.pcap -Y '(dns.qry.type == 5) and not (dns.cname)' -T fields -e frame.number -e dns.qry.name > queries_CNAME.txt
+# tshark -r dnscap.pcap -Y '(dns.qry.type == 5) and not (dns.cname)' -T fields -e frame.number -e dns.qry.name > queries_CNAME.txt
 ```
 
 CNAME RESPONSES
 ```
-tshark -r dnscap.pcap -Y 'dns.cname' -T fields -e frame.number -e dns.cname > responses_CNAME.txt
+# tshark -r dnscap.pcap -Y 'dns.cname' -T fields -e frame.number -e dns.cname > responses_CNAME.txt
+```
+
+Note that for each capture we include the frame number, just in case it is necessary for any purpose.
+
+Then we merge all the files in a single one:
+```
+# cat queries_CNAME.txt queries_MX.txt queries_TXT.txt responses_CNAME.txt responses_MX.txt responses_TXT.txt > fusion.txt
+```
+
+And generate a new merged file with all the packets ordered by frame number (first column in the file):
+```
+# sort -k1n,3 fusion.txt > fusion_ordenado.txt
+
+Here is how this new file looks like:
+```
+1       05e100a621c3620001636f6e736f6c65202873697276696d65732900.skullseclabs.org
+2       958700a621c3620001636f6e736f6c65202873697276696d65732900.skullseclabs.org
+3       634f00a621010a0000.skullseclabs.org
+4       7cd501a621c362010a.skullseclabs.org
+5       96b201a621010ac362
+6       b11c01a621c362010a.skullseclabs.org
+7       e14001a621010ac362
+8       0ab801a621c362010a.skullseclabs.org
+9       0e3d01a621010ac362.skullseclabs.org
+10      772301a621c362010a.skullseclabs.org
+11      d01b01a621010ac362.skullseclabs.org
+12      b73f01a621c362010a57656c636f6d6520746f20646e7363617021205468.6520666c61672069732062656c6f772c20686176652066756e21210a.skullseclabs.org
+13      aeb101a621010ac393.skullseclabs.org
+/....../
 ```
 
