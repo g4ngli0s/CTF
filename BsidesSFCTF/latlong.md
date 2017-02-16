@@ -65,5 +65,10 @@ AFSK1200: fm WDPX01-0 to APRS-0 UI  pid=F0
 !/;E'q/Sz'O   /A=000000flag{f4ils4f3c0mms}
 ```
 
+So our hypothesis was true. The intercepted transmission was an Automatic Position Reporting System (APRS) packet, using the AX.25 protocol with a BFSK modulation scheme.
+
 The flag is:
 flag{f4ils4f3c0mms}
+
+Nice to have a challenge combining Ham Radio, SIGINT and CTFs!
+
