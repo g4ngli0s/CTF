@@ -100,6 +100,7 @@ msfvenom -p linux/x64/exec CMD="cat /home/ctf/flag.txt" -n 16 -b '\x00\x20\x0d\x
 El shellcode no es más que los opcodes de las instrucciones de lenguaje ensamblador. Hagamos un ejemplo con el clásico "Hola mundo" en ensamblador:
 
 ```asm
+BITS32
 global _start
 
 section .text
@@ -179,7 +180,8 @@ Disassembly of section .text:
  8048093:	0a                   	.byte 0xa
 ```
 
-Si quisieramos probarlo a través de un programa de C, sólo tendríamos que ir colocando por orden nuestro shellcode en el array code y probar si funciona. Es importante hacer el array constante para que se guarda en una dirección de memoria que tenga permiso de ejecucción, sino daría un **Segmentaion fault.**
+Si quisieramos inyectar nuestro bytecode o shellcode en un programa de C, sólo tendríamos que ir colocando por orden nuestro shellcode en el array code y probar si funciona. Es importante hacer el array constante para que se guarde en una dirección de memoria que tenga permiso de ejecucción, sino daría un **Segmentaion fault.**
+Recordad que para inyectar nuestro shellcode en otro programa no debe contener ninguna sección .data, porque sino ambos programas tendrían sus propias secciones .data diferenciadas entrando en conflicto y provocando un **Segmentaion fault**. No habría manera de inyectar el bytecode en la pila y ejecutarlo. Para evitar la sección .data en nuestro shellcode se utiliza la técnica jmp-call explicada anteriormente.
 
 ```
 const char code[] = 
@@ -213,9 +215,11 @@ Hello wolrd!
 
 ##### **Ejemplo leer fichero en 64 bits**
 
+Como nuestro shellcode o bytecode lo usamos para ejecutarse dentro de otro programa, no tiene que tener ninguna sección .data en el código ensamblador, por eso es necesario utilizar la técnica jmp-call descrita en el anterior ejemplo.
 Veamos como se construye el shellcode para leer el fichero /etc/passwd en un entorno x86_64 linux. Si tenemos este código de ensamblador:
 
 ```asm
+BITS64
 global _start
 
 section .text
