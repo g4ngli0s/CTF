@@ -70,5 +70,5 @@ So our hypothesis was true. The intercepted transmission was an Automatic Positi
 The flag is:
 flag{f4ils4f3c0mms}
 
-Nice to have a challenge combining Ham Radio, SIGINT and CTFs!
+Nice to have a challenge combining Ham Radio, SIGINT and CTF!
 
