@@ -263,8 +263,17 @@ call _readfile
 path: db "/etc/passwd"
 
 ```
+En los comentarios del código explica los valores que deben tener los registros para hacer las llamadas al sistema. En este caso sería:
 
-Estoy probando esto mismo con 64 bits para un programa en ensamblador que lea el /etc/passwd, de momento me da "Segmentation fault", cuando consiga resolverlo lo colgaré aquí para ver un ejemplo en 64 bits. Creo que tiene que ver en como se pasan los parámetros en 64 bits, que no utiliza la pila (los primeros 4 parámetros van en los registros RCX, RDX, R8, R9, el resto se pasan por la pila).
+|%rax		|Systemcall		|%rdi				|%rsi				|%rdx |
+|-----------|---------------|-------------------|-------------------|-----|
+|0			|sys_read	|unsigned int fd			|char *buf			|size_t count|		
+|1			|sys_write	|unsigned int fd			|const char *buf		|size_t count|			
+|2			|sys_open	|const char *filename	|int flags			|int mode|
+
+Enlaces a la lista completa de las llamadas a sistema para [32bits](http://syscalls.kernelgrok.com/) y para [64bits](http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/)
+
+
 
 *That's all folks!*
 
