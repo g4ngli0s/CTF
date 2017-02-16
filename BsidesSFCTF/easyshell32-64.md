@@ -1,14 +1,14 @@
-#### **Enunciado**
+## **Enunciado**
 
 Te daban el código fuente de dos ELF, uno de 32 bits y otro de 64 bits, y un servicio corriendo en un servidor donde tenías que enviar un 
 exploit remoto para leer el archivo /home/ctf/flag.txt. No había ni que controlar el EIP, me imagino que por eso puntuaban tan poco.
 
-#### **Solución**
+## **Solución**
 
 Ambos casos se solucionan de la misma manera, creando un shellcode para leer archivos. Sin embargo, para el caso de 32 bits tendremos la inestimable ayuda de metasploit y usaremos el payload de msfvenom de metasploit que te permite leer un archivo. En el caso de 64 bits te puedes programar en ensamblador un shellcode o bien puedes usar uno de los que hay en shell-storm: http://shell-storm.org/shellcode/files/shellcode-878.php
 
 
-##### **easyshell32**
+### **easyshell32**
 
 Creamos el payload con metasploit:
 
@@ -50,7 +50,7 @@ conn.close()
 
 FLAG:c832b461f8772b49f45e6c3906645adb
 
-##### **easyshell64**
+### **easyshell64**
 
 En este caso echamos mano de shell-storm.org, ya que metasploit no tiene un payload para leer archvios en 64 bits. En concreto cogemos el payload http://shell-storm.org/shellcode/files/shellcode-878.php
 
@@ -93,9 +93,9 @@ Luego descubrí que hay otra manera más sencilla usando el payload de 64 bits d
 msfvenom -p linux/x64/exec CMD="cat /home/ctf/flag.txt" -n 16 -b '\x00\x20\x0d\x0a' -f python
 ```
 
-#### **Teoría básica de shellcodes**
+## **Teoría básica de shellcodes**
 
-##### **¿Qué son estos shellcodes?** 
+### **¿Qué son estos shellcodes?** 
 
 El shellcode no es más que los opcodes de las instrucciones de lenguaje ensamblador. Hagamos un ejemplo con el clásico "Hola mundo" en ensamblador:
 
@@ -131,7 +131,7 @@ MESSAGE:
 En este código se utiliza el clásico jmp-call para dejar en la pila la dirección de memoria de la variable a la que queremos acceder. En este caso "Hello, World!". Está explicado este método en los comentarios. 
 
 
-##### **¿Cómo se genera?**
+### **¿Cómo se genera?**
 
 Una vez que tenemos el código ensamblador, lo compilamos y creamos el ejecutable:
 
@@ -214,7 +214,7 @@ gcc test.c -o test
 Hello wolrd!
 ```
 
-##### **Ejemplo leer fichero en 64 bits**
+### **Ejemplo leer fichero en 64 bits**
 
 
 Veamos como se construye el shellcode para leer el fichero /etc/passwd en un entorno x86_64 linux. Tenemos este código de ensamblador:
@@ -345,6 +345,7 @@ Para extraer el shellcode en la consola de linux:
 
 ```
 for i in `objdump -d readfile | tr '\t' ' ' | tr ' ' '\n' | egrep '^[0-9a-f]{2}$' ` ; do echo -n "\x$i" ; done
+
 \xeb\x3b\x5f\x48\x31\xc0\x04\x02\x48\x31\xf6\x0f\x05\x66\x81\xec\xff\x0f\x48\x8d\x34\x24\x48\x89\xc7\x48\x31\xd2\x66\xba\xff\x0f\x48\x31\xc0\x0f\x05\x48\x31\xff\x40\x80\xc7\x01\x48\x89\xc2\x48\x31\xc0\x04\x01\x0f\x05\x48\x31\xc0\x04\x3c\x0f\x05\xe8\xc0\xff\xff\xff\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64
 ```
 
