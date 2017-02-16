@@ -5,3 +5,4 @@
 
 #### Forensics
 - [dnscap](https://github.com/g4ngli0s/CTF/blob/master/BsidesSFCTF/dnscap.md): Solución al reto dnscap (500 points).
+- [latlong](https://github.com/g4ngli0s/CTF/blob/master/BsidesSFCTF/latlong.md): Solución al reto latlong (150 points).
