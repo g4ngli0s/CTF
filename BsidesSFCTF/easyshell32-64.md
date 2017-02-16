@@ -180,8 +180,9 @@ Disassembly of section .text:
  8048093:	0a                   	.byte 0xa
 ```
 
-Si quisieramos inyectar nuestro bytecode o shellcode en un programa de C, sólo tendríamos que ir colocando por orden nuestro shellcode en el array code y probar si funciona. Es importante hacer el array constante para que se guarde en una dirección de memoria que tenga permiso de ejecucción, sino daría un **Segmentaion fault.**
-Recordad que para inyectar nuestro shellcode en otro programa no debe contener ninguna sección .data, porque sino ambos programas tendrían sus propias secciones .data diferenciadas entrando en conflicto y provocando un **Segmentaion fault**. No habría manera de inyectar el bytecode en la pila y ejecutarlo. Para evitar la sección .data en nuestro shellcode se utiliza la técnica jmp-call explicada anteriormente.
+Si quisieramos inyectar nuestro bytecode o shellcode en un programa de C, sólo tendríamos que ir colocando por orden nuestro shellcode en el array code y probar si funciona. Es importante hacer el array constante para que se guarde en una dirección de memoria que tenga permiso de ejecucción, sino daría un **"Segmentaion fault".**
+
+Recordad también que para inyectar nuestro shellcode en otro programa no debe contener ninguna sección .data, porque sino ambos programas tendrían sus propias secciones .data diferenciadas entrando en conflicto y provocando un **"Segmentaion fault"**. No habría manera de inyectar el bytecode en la pila y ejecutarlo. Para evitar la sección .data en nuestro shellcode se utiliza la técnica jmp-call explicada anteriormente.
 
 ```
 const char code[] = 
