@@ -145,7 +145,7 @@ Una vez hechas las comprobaciones vamos a la pimera parte del meollo. Lo primero
     1a00:	lea    rax,[rbp-0xb0]
     1a07:	lea    rsi,[rip+0xf7c]        # 298a <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x13da>	<== Patron1 de caracteres que nos va a servir para ofuscar el pin (al menos 4 de los dígitos).
     1a0e:	mov    rdi,rax
-    1a11:	call   1550 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1EPKcRKS3_@plt> 	<== Hace una copia del patron1 en otra posición de memoria.
+    1a11:	call   1550 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1EPKcRKS3_@plt> 	<== Hace una copia del patron1 en otra posición de memoria donde va a ir guardando el resultado de las operaciones.
     1a16:	lea    rax,[rbp-0x82]
     1a1d:	mov    rdi,rax
     1a20:	call   14e0 <_ZNSaIcED1Ev@plt>
@@ -241,11 +241,65 @@ Lo que sigue a continuación en el código es una serie de comprobaciones para v
     1ae4:	74 05                	je     1aeb <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x53b>
     1ae6:	e8 60 fd ff ff       	call   184b <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x29b>
 ```
-De esta manera ya podemos saber esos cuatro valores del pin haciendo las operaciones inversas del bucle anterior, por ejemplo para la posición 1, el valor codificado tiene que ser 0x35. Por lo tanto,
+De esta manera ya podemos saber esos cuatro valores del pin haciendo las operaciones inversas del bucle anterior, por ejemplo para la posición 1, el valor codificado tiene que ser 0x35. Por lo tanto:
+
+```
 patron_original[1]=0xfc; pin[1] = not(0xffffff35 XOR 0xfc) = 0x36 (6)
 patron_original[8]=0xbd; pin[0] = not(0xffffff73 XOR 0xbc) = 0x31 (1)
 patron_original[11]=0x9e; pin[3] = not(0xffffff56 XOR 0x9e) = 0x37 (7)
 patron_original[14]=0x9a; pin[6] = not(0xffffff51 XOR 0x9a) = 0x34 (4)
+```
+Ya tenemos los siguientes valores del pin: 16X7XX4X
 
+Aquí se podría haber hecho fuerza bruta con un diccionario de los cuatro dígitos que faltan y pasarlo al programa, pero yo decidí seguir adelante y ver como se calculaban el resto de dígitos del pin que faltaban.
+Lo que vemos a continuación es algo muy parecido a lo que hemos visto en el primer bucle que codificaba nuestro pin con el patron1. La diferencia es que este bucle codifica el patron1_codificado de 0x12 bytes(18) con un patron2 de 0x21 bytes(33). Así se puede ver en el código como se accede al patron2 y se hace una copia.
+
+```
+    1aeb:	lea    rax,[rbp-0x81]
+    1af2:	mov    rdi,rax
+    1af5:	call   1560 <_ZNSaIcEC1Ev@plt>
+    1afa:	lea    rdx,[rbp-0x81]
+    1b01:	lea    rax,[rbp-0xd0]
+    1b08:	lea    rsi,[rip+0xe91]        # 29a0 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x13f0>	<== Patron2 de caracteres que nos va a servir para codificar otra vez el patron1_codificado.
+    1b0f:	mov    rdi,rax
+    1b12:	call   1550 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1EPKcRKS3_@plt>	<== Hace una copia del patron2 en otra posición de memoria, done va ir guando el resultado de las operaciones.	
+    1b17:	lea    rax,[rbp-0x81]
+    1b1e:	mov    rdi,rax
+    1b21:	call   14e0 <_ZNSaIcED1Ev@plt>
+    1b26:	mov    QWORD PTR [rbp-0x28],0x0
+ ```
+ Luego tendríamos un bucle muy similar al primero pero con diferentes valores de i y de j al ser patron2 y patron1_codificado de diferente tamaños. Ahora j sería igual a mod 18.
+ 
+ ```  
+    1b2e:	lea    rax,[rbp-0xd0]
+    1b35:	mov    rdi,rax
+    1b38:	call   1420 <_ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE6lengthEv@plt>
+    1b3d:	cmp    rax,QWORD PTR [rbp-0x28]
+    1b41:	seta   al
+    1b44:	test   al,al
+    1b46:	je     1b98 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x5e8>
+    1b48:	mov    rdx,QWORD PTR [rbp-0x28]
+    1b4c:	lea    rax,[rbp-0xd0]
+    1b53:	mov    rsi,rdx
+    1b56:	mov    rdi,rax
+    1b59:	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
+    1b5e:	mov    rbx,rax
+    1b61:	movzx  r12d,BYTE PTR [rbx]
+    1b65:	mov    rax,QWORD PTR [rbp-0x38]
+    1b69:	mov    rdi,rax
+    1b6c:	call   1480 <strlen@plt>
+    1b71:	mov    rcx,rax
+    1b74:	mov    rax,QWORD PTR [rbp-0x28]
+    1b78:	mov    edx,0x0
+    1b7d:	div    rcx
+    1b80:	mov    rax,QWORD PTR [rbp-0x38]
+    1b84:	add    rax,rdx
+    1b87:	movzx  eax,BYTE PTR [rax]
+    1b8a:	not    eax
+    1b8c:	xor    eax,r12d
+    1b8f:	mov    BYTE PTR [rbx],al
+    1b91:	add    QWORD PTR [rbp-0x28],0x1
+    1b96:	jmp    1b2e <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x57e>
+```
 
 
