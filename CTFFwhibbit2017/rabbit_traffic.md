@@ -1,8 +1,8 @@
 -----
-**Rabbit Traffic (150 pts)
-CTF: Fwhibbit CTF 2017
-URL: https://ctf.followthewhiterabbit.es/
-CAT: forensics**
+# Rabbit Traffic (150 pts)
+# CTF: Fwhibbit CTF 2017
+#URL: https://ctf.followthewhiterabbit.es/
+# CAT: forensics
 
 -----
 
@@ -88,11 +88,73 @@ Edit > Preferences > Protocols > SSL > (Pre)-Master-Secret Log
 
 If we try to see the TCP sequence 32 with 'Follow TCP stream' we just get garbage because it is a TLSv1.2 transmission. However, once the keys have been loaded, we can use 'Follow SSL stream' instead to see the contents. Now we are able to see at least the HTTP headers within the TLS transmission.
 
-In order to extract the contents of the transmission, we choose:
+In order to extract the contents of the transmission, we select the packet 501 in the main pane:
 
-File > Export Objects > HTTP
+```
+501	11.716022	192.168.10.132	192.168.10.100	HTTP	405	GET / HTTP/1.1 
+```
 
-There is a list of available HTTP transmissions within the pcap. We chose the one corresponding to packet 
+And then use 'Follow HTTP stream' to see its contents:
+```
+GET / HTTP/1.1
+Host: 192.168.10.100
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+
+HTTP/1.1 200 OK
+Server: nginx/1.10.2
+Date: Sat, 10 Dec 2016 20:58:27 GMT
+Content-Type: text/html
+Last-Modified: Sat, 10 Dec 2016 18:37:37 GMT
+Transfer-Encoding: chunked
+Connection: keep-alive
+ETag: W/"584c4b71-fd"
+Content-Encoding: gzip
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Look Here :)</title>
+</head>
+<body>
+<h1 style="text-align: center;">Your Private Flag</h1>
+<p>&nbsp;</p>
+<p style="text-align: center;"><strong>fwhibbit{d3c0d3Th1sIfy0uC4n}</strong></p>
+<p>&nbsp;</p>
+</body>
+</html>
+GET /favicon.ico HTTP/1.1
+Host: 192.168.10.100
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+HTTP/1.1 404 Not Found
+Server: nginx/1.10.2
+Date: Sat, 10 Dec 2016 20:58:27 GMT
+Content-Type: text/html
+Transfer-Encoding: chunked
+Connection: keep-alive
+Content-Encoding: gzip
+
+<html>
+<head><title>404 Not Found</title></head>
+<body bgcolor="white">
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.10.2</center>
+</body>
+</html>
+```
+
+So the flag is:
+
+fwhibbit{d3c0d3Th1sIfy0uC4n}
 
 
 
