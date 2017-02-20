@@ -241,5 +241,11 @@ Lo que sigue a continuación en el código es una serie de comprobaciones para v
     1ae4:	74 05                	je     1aeb <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x53b>
     1ae6:	e8 60 fd ff ff       	call   184b <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x29b>
 ```
+De esta manera ya podemos saber esos cuatro valores del pin haciendo las operaciones inversas del bucle anterior, por ejemplo para la posición 1, el valor codificado tiene que ser 0x35. Por lo tanto,
+patron_original[1]=0xfc; pin[1] = not(0xffffff35 XOR 0xfc) = 0x36 (6)
+patron_original[8]=0xbd; pin[0] = not(0xffffff73 XOR 0xbc) = 0x31 (1)
+patron_original[11]=0x9e; pin[3] = not(0xffffff56 XOR 0x9e) = 0x37 (7)
+patron_original[14]=0x9a; pin[6] = not(0xffffff51 XOR 0x9a) = 0x34 (4)
+
 
 
