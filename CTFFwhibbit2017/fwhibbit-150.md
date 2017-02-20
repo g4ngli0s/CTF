@@ -8,10 +8,10 @@ Description: Hi aspirant, we lost all our carrots, for this reason we need your 
 
 ## **Solución**
 
-La verdad es que no se para que he publicado este post porque es el clásico ejemplo de crackme sencillo y sin sustancia, pero luego un amigo me ha convencido para ponerlo aunque sea sólo para configurar las opciones del gdb-peda. :-)
-Para quien no lo sepa peda es un script de python que te ayuda a no "quemarte tanto las pestañas" en gdb. Te aporta un entorno visual más amigable y funcionalidades extra no incluídas en gdb. Para quien quiera conocer más:
+La verdad es que no sé para que he publicado este writeup porque es el clásico ejemplo de crackme sencillo y sin sustancia, pero luego un amigo me ha convencido para ponerlo aunque sea sólo para configurar las opciones del gdb-peda. :-)
+Para quien no lo sepa, 'peda' es un script de python que te ayuda a no "quemarte tanto las pestañas" en gdb. Te aporta un entorno visual más amigable y funcionalidades extra no incluídas en gdb. Para quien quiera conocer más:
 https://github.com/longld/peda
-De todas formas yo suelo usar voltron, que a diferencia de peda te permite redirigir la salida a otros terminales:
+De todas formas yo suelo usar 'voltron', que a diferencia de peda te permite redirigir la salida a otros terminales:
 https://github.com/snare/voltron
 
 Estas son las opciones que suelo usar en .gdbinit:
@@ -69,7 +69,7 @@ x/32xw $rdi
 0x7fffffffe0a0:	0x6c6c756e	0x00000000	0xffffe001	0x00007fff
 ```
 
-Pasando '0x6c6c756e' a ascii: 'llun'. Ya tenemos la contraseña, ejecutamos y nos da la flag:
+Pasando '0x6c6c756e' a ascii: 'llun' ya tenemos la contraseña. Ahora ejecutamos y nos da la flag:
 
 ```
 ./fwhibbit-150 
