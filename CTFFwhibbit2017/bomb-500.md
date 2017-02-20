@@ -117,3 +117,26 @@ Básicamente lo que hace todo esto es reservar memoria, guardar el pin introduci
 0x7fffffffe0f0:	0x31313131	0x31313131
 ```
 
+Una vez superado que el pin sea de 8 dígitos, hay un bucle en el que recorre cada dígito del pin para comprobar que sea un número y no cualquier otro carácter inválido:
+
+```
+    19a5:	c7 45 ec 00 00 00 00 	mov    DWORD PTR [rbp-0x14],0x0
+    19ac:	83 7d ec 07          	cmp    DWORD PTR [rbp-0x14],0x7		<== Inicio del bucle (0..7)
+    19b0:	7f 2d                	jg     19df <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x42f>	<== Si es mayor que 7 se sale del bucle
+    19b2:	8b 45 ec             	mov    eax,DWORD PTR [rbp-0x14]
+    19b5:	48 98                	cdqe   
+    19b7:	0f b6 84 05 70 ff ff ff 	movzx  eax,BYTE PTR [rbp+rax*1-0x90]	<== Coge el siguiente dígito del pin (eax=pin[i])
+    19bf:	3c 39                	cmp    al,0x39			<== Comprueba que el valor ASCII no sea mayor que 0x39 ('9')
+    19c1:	7f 11                	jg     19d4 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x424> <== Nos manda al dibujito de la bomba si no se cumple la condición anterior
+    19c3:	8b 45 ec             	mov    eax,DWORD PTR [rbp-0x14]		
+    19c6:	48 98                	cdqe   
+    19c8:	0f b6 84 05 70 ff ff ff 	movzx  eax,BYTE PTR [rbp+rax*1-0x90] 	<== Vuelve a coger el mismo pin[i]
+    19d0:	3c 2f                	cmp    al,0x2f			<== Comprueba que el valor ASCII sea mayor que 0x2f ('/')
+    19d2:	7f 05                	jg     19d9 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x429>
+    19d4:	e8 72 fe ff ff       	call   184b <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x29b>	<== Nos manda al dibujito de la bomba y sale del programa
+    19d9:	83 45 ec 01          	add    DWORD PTR [rbp-0x14],0x1 <== i=i+1
+    19dd:	eb cd                	jmp    19ac <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x3fc>
+    
+```
+
+
