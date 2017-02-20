@@ -8,7 +8,7 @@ Description: Hi aspirant, we lost all our carrots, for this reason we need your 
 
 ## **Solución**
 
-La verdad es que no sé para que he publicado este writeup porque es el clásico ejemplo de crackme sencillo y sin sustancia, pero luego un amigo me ha convencido para ponerlo aunque sea sólo para configurar las opciones del gdb-peda. :-)
+La verdad es que no sé para que he publicado este writeup porque es el clásico ejemplo de crackme sencillo y sin mucha sustancia. Pero luego un amigo me ha convencido para ponerlo aunque sea sólo para configurar las opciones del gdb-peda :-)
 Para quien no lo sepa, 'peda' es un script de python que te ayuda a no "quemarte tanto las pestañas" en gdb. Te aporta un entorno visual más amigable y funcionalidades extra no incluídas en gdb. Para quien quiera conocer más:
 https://github.com/longld/peda
 De todas formas yo suelo usar 'voltron', que a diferencia de peda te permite redirigir la salida a otros terminales:
