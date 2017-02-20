@@ -201,7 +201,7 @@ Ya se que están un poco liosos los comentarios en  el código, pero básicament
 ```C
 for (i=0; i < 18; i = i + 1) {
 	j = i mod 8;
-	copia_patron[i] = NOT(pin(j)) XOR copia_patron[i];
+	copia_patron1[i] = NOT(pin[j]) XOR copia_patron1[i];
 }
 ```
 
@@ -266,11 +266,11 @@ Lo que vemos a continuación es algo muy parecido a lo que hemos visto en el pri
     1b17:	lea    rax,[rbp-0x81]
     1b1e:	mov    rdi,rax
     1b21:	call   14e0 <_ZNSaIcED1Ev@plt>
-    1b26:	mov    QWORD PTR [rbp-0x28],0x0
  ```
- Luego tendríamos un bucle muy similar al primero pero con diferentes valores de i y de j al ser patron2 y patron1_codificado de diferente tamaños. Ahora j sería igual a mod 18.
+ Luego tendríamos un bucle muy similar al primero pero con diferentes valores de i y de j al ser patron2 y patron1_codificado de diferente tamaños, en este caso j=i mod 18.
  
  ```  
+    1b26:	mov    QWORD PTR [rbp-0x28],0x0
     1b2e:	lea    rax,[rbp-0xd0]
     1b35:	mov    rdi,rax
     1b38:	call   1420 <_ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE6lengthEv@plt>
@@ -300,6 +300,14 @@ Lo que vemos a continuación es algo muy parecido a lo que hemos visto en el pri
     1b8f:	mov    BYTE PTR [rbx],al
     1b91:	add    QWORD PTR [rbp-0x28],0x1
     1b96:	jmp    1b2e <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x57e>
+```
+No pongo anotaciones en el código porque es idéntico al anterior y además así practicais para ir siguiendo lo que hace ;-). Básicamente sigue haciendo estas operaciones:
+
+```C
+for (i=0; i < 33; i = i + 1) {
+	j = i mod 18;
+	copia_patron2[i] = NOT(patron1_codificado[j]) XOR copia_patron2[i];
+}
 ```
 
 
