@@ -138,7 +138,7 @@ Una vez superado que el pin sea de 8 dígitos, hay un bucle en el que recorre ca
     19dd:	jmp    19ac <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x3fc>
     
 ```
-Una vez hechas las comprobaciones vamos a la pimera parte del meollo. Lo primero que hace es reservar memoria, 
+Una vez hechas las comprobaciones vamos a la pimera parte del meollo. Lo primero que hace es reservar memoria para copiar un patrón de caracteres. Este patrón de caracteres (le llamaremos Patron1) se usa para ofuscar (con operaciones lógicas) los valores del pin correcto.
 ```
     19f4:	call   1560 <_ZNSaIcEC1Ev@plt>
     19f9:	lea    rdx,[rbp-0x82]
