@@ -18,13 +18,14 @@ Local exec file:
 	`/home/pericodelospalotes/FwhibbitCTF/Reversing/rabbits-200', file type elf64-x86-64.
 	Entry point: 0x555555554de0
 ```
+
 Aquí vemos guardar en el stack frame algunos valores sospechosos
 
 ```
      b31:	mov    ecx,0x6f77                   <== Cadena 'ow'
      b36:	mov    eax,0x6867                   <== Cadena 'hg'
-     b3b:	mov    edx,0x7774                   <== Cadena 'ow'
-     b40:	mov    esi,0x7774                   <== Cadena 'ow'
+     b3b:	mov    edx,0x7774                   <== Cadena 'wt'
+     b40:	mov    esi,0x7774                   <== Cadena 'wt'
      b45:	sub    rsp,0x220
      b4c:	mov    WORD PTR [rsp+0x30],cx
      b51:	mov    WORD PTR [rsp+0x10],ax
@@ -32,16 +33,16 @@ Aquí vemos guardar en el stack frame algunos valores sospechosos
      b5e:	mov    WORD PTR [rsp+0x20],dx
      b63:	mov    WORD PTR [rsp+0xf0],si
      b6b:	mov    DWORD PTR [rsp+0x50],0x
-     b73:	mov    DWORD PTR [rsp+0x60],0x357431
+     b73:	mov    DWORD PTR [rsp+0x60],0x357431	<== Cadena '5t1'
      b7b:	mov    BYTE PTR [rsp+0x12],0x0
-     b80:	mov    DWORD PTR [rsp+0x70],0x77745f
-     b88:	mov    DWORD PTR [rsp+0x80],0x79746e
+     b80:	mov    DWORD PTR [rsp+0x70],0x77745f	<== Cadena 'wt_'
+     b88:	mov    DWORD PTR [rsp+0x80],0x79746e	<== Cadena 'ytn'
      b93:	mov    BYTE PTR [rsp+0x22],0x0
-     b98:	mov    DWORD PTR [rsp+0x90],0x725f30
-     ba3:	mov    DWORD PTR [rsp+0xa0],0x72615f
+     b98:	mov    DWORD PTR [rsp+0x90],0x725f30	<== Cadena 'r_0'
+     ba3:	mov    DWORD PTR [rsp+0xa0],0x72615f	<== Cadena 'ra_'
      bae:	mov    BYTE PTR [rsp+0x32],0x0
-     bb3:	mov    DWORD PTR [rsp+0xb0],0x746e65
-     bbe:	mov    DWORD PTR [rsp+0xf2],0x746e65
+     bb3:	mov    DWORD PTR [rsp+0xb0],0x746e65	<== Cadena 'tne'
+     bbe:	mov    DWORD PTR [rsp+0xf2],0x746e65	<== Cadena 'tne'
      call    sub_F10
 
 .text:0000000000000B30 push    rbx
