@@ -46,8 +46,7 @@ Aquí vemos guardar en el stack frame algunos valores sospechosos
      bc9:	call    sub_F10				<== Función que hace el dibujo en ASCII del conejo
 ```
 
-
-
+Y en esta parte del código vemos como construye la cadena que va a servir de password y la pone en donde apunta $rsi
 
 ```
 => 0x555555554c0b:	call   0x555555554ad0 <_ZStrsIcSt11char_traitsIcEERSt13basic_istreamIT_T0_ES6_PS3_@plt>
@@ -63,9 +62,52 @@ Aquí vemos guardar en el stack frame algunos valores sospechosos
    0x555555554c44:	test   eax,eax
 ```
 
+Esto es los valores que van cogiendo los registros hasta completar la palabra:
+
 ```
 RAX: 0x6f77 ('wo')
 RAX: 0x745f79 ('y_t')
 RSI: 0x7fffffffe050 --> 0x746e657774 ('twent')
+....
+RSI: 0x7fffffffe050 ("twenty_two")
+RDI: 0x7fffffffe080 --> 0x41414141 ('AAAA')
+```
+
+
+Y aquí como se ve en memoria:
 
 ```
+gdb-peda$ x/32xw $rsi
+0x7fffffffe050:	0x6e657774	0x745f7974	0x00006f77	0x00000000
+```
+
+Ejecutamos y nos devuelve la flag:
+
+```
+./rabbits-200 
+
+        .--``..---.                
+         .````--:ohdmNms/`         
+          -:/+++/-.:smNd+          
+       ```..--:ohmNNdhh.           
+     `-. `.``.-+sosshd.         :. 
+   -os--/sosdmmNNMMNy         .+// 
+  :h+.+hNNMMMNNNMMNm/      `/yNN.` 
+ .do/oNNMMMMMmohs+:`    .+hNMMMM-` 
+ `yohNhNNNMh-           dosNMMMmo- 
+  -mN+hMMMy             .smNMNdd/+`
+   yN.hMMh               +NMMNmhds:
+   +N//m+                 .osshyho 
+  ..smhh                           
+   ::oNmy-                         
+      .//yhs/:`                    
+          :ymNN/                   
+         .-+shdho.                 
+             `.--..` '''   
+
+ one rabbit, two rabbit... 
+ > twenty_two
+
+fwhibbit{Tw3nty_tw0_r4bb1t5_ar3_en0ugh} 
+```
+
