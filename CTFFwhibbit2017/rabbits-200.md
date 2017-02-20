@@ -21,6 +21,7 @@ Local exec file:
 
 Aquí vemos guardar en el stack frame algunos valores sospechosos
 
+
 ```
      b31:	mov    ecx,0x6f77                   <== Cadena 'ow'
      b36:	mov    eax,0x6867                   <== Cadena 'hg'
