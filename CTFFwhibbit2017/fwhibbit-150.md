@@ -14,6 +14,7 @@ https://github.com/longld/peda
 De todas formas yo suelo usar 'voltron', que a diferencia de peda te permite redirigir la salida a otros terminales:
 https://github.com/snare/voltron
 
+
 Estas son las opciones que suelo usar en .gdbinit:
 
 ```
