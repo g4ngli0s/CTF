@@ -310,4 +310,53 @@ for (i=0; i < 33; i = i + 1) {
 }
 ```
 
+Igual que en el primer patrón, al salir de este segundo bucle se van a realizar una serie de comprobaciones para comprobar que nuestro pin es correcto. De esta manera podemos calcular si vamos haciendo las operaciones inversas los cuatro valores restantes que nos quedan por saber del pin (posicones 2,4,5 y 7). En este código se muestra esas comprobaciones que con la práctica anterior podéis seguir sin ayuda:
+
+```
+    1bb3:	48 8d 85 30 ff ff ff 	lea    rax,[rbp-0xd0]
+    1bba:	be 1d 00 00 00       	mov    esi,0x1d
+    1bbf:	48 89 c7             	mov    rdi,rax
+    1bc2:	e8 c9 f9 ff ff       	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
+    1bc7:	0f b6 00             	movzx  eax,BYTE PTR [rax]
+    1bca:	3c 69                	cmp    al,0x69
+    1bcc:	75 51                	jne    1c1f <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x66f>
+    1bce:	48 8d 85 30 ff ff ff 	lea    rax,[rbp-0xd0]
+    1bd5:	be 07 00 00 00       	mov    esi,0x7
+    1bda:	48 89 c7             	mov    rdi,rax
+    1bdd:	e8 ae f9 ff ff       	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
+    1be2:	0f b6 00             	movzx  eax,BYTE PTR [rax]
+    1be5:	3c 31                	cmp    al,0x31
+    1be7:	75 36                	jne    1c1f <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x66f>
+    1be9:	48 8d 85 30 ff ff ff 	lea    rax,[rbp-0xd0]
+    1bf0:	be 1e 00 00 00       	mov    esi,0x1e
+    1bf5:	48 89 c7             	mov    rdi,rax
+    1bf8:	e8 93 f9 ff ff       	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
+    1bfd:	0f b6 00             	movzx  eax,BYTE PTR [rax]
+    1c00:	3c 68                	cmp    al,0x68
+    1c02:	75 1b                	jne    1c1f <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x66f>
+    1c04:	48 8d 85 30 ff ff ff 	lea    rax,[rbp-0xd0]
+    1c0b:	be 1f 00 00 00       	mov    esi,0x1f
+    1c10:	48 89 c7             	mov    rdi,rax
+    1c13:	e8 78 f9 ff ff       	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
+    1c18:	0f b6 00             	movzx  eax,BYTE PTR [rax]
+    1c1b:	3c 77                	cmp    al,0x77
+    1c1d:	74 07                	je     1c26 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x676>
+    1c1f:	b8 01 00 00 00       	mov    eax,0x1
+    1c24:	eb 05                	jmp    1c2b <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x67b>
+    1c26:	b8 00 00 00 00       	mov    eax,0x0
+    1c2b:	84 c0                	test   al,al
+    1c2d:	74 05                	je     1c34 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x684>
+```
+Si revertimos las operaciones para esas posiciones, el PIN final sería: 16274248.
+
+```
+ Deactivation Code 
+  > 16274248
+
+fwhibbit{d34c71v473d_r4bb17_b0mb}
+```
+
+¡¡Buen trabajo Bauer!!
+
+
 
