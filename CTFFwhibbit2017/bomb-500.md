@@ -220,22 +220,22 @@ Lo que sigue a continuación en el código es una serie de comprobaciones para v
     1aa1:	e8 8a fa ff ff       	call   1530 <_ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE5c_strEv@plt>
     1aa6:	48 89 45 c8          	mov    QWORD PTR [rbp-0x38],rax
     1aaa:	48 8b 45 c8          	mov    rax,QWORD PTR [rbp-0x38]
-    1aae:	48 83 c0 01          	add    rax,0x1			<== Comprueba la posición 0x1 del patron_codificado
+    1aae:	48 83 c0 01          	add    rax,0x1			<== Comprueba la posición 0x1 del patron1_codificado
     1ab2:	0f b6 00             	movzx  eax,BYTE PTR [rax]
     1ab5:	3c 35                	cmp    al,0x35			<== La posicón 1 (0x1 mod 8) del pin está codificado con este valor 
     1ab7:	75 2d                	jne    1ae6 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x536>
     1ab9:	48 8b 45 c8          	mov    rax,QWORD PTR [rbp-0x38]
-    1abd:	48 83 c0 08          	add    rax,0x8			<== Comprueba la posición 0x8 del patron_codificado
+    1abd:	48 83 c0 08          	add    rax,0x8			<== Comprueba la posición 0x8 del patron1_codificado
     1ac1:	0f b6 00             	movzx  eax,BYTE PTR [rax]
     1ac4:	3c 73                	cmp    al,0x73			<== La posicón 0 (0x8 mod 8) del pin está codificado con este valor
     1ac6:	75 1e                	jne    1ae6 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x536>
     1ac8:	48 8b 45 c8          	mov    rax,QWORD PTR [rbp-0x38]
-    1acc:	48 83 c0 0b          	add    rax,0xb			<== Comprueba la posición 0xb del patron_codificado
+    1acc:	48 83 c0 0b          	add    rax,0xb			<== Comprueba la posición 0xb del patron1_codificado
     1ad0:	0f b6 00             	movzx  eax,BYTE PTR [rax]
     1ad3:	3c 56                	cmp    al,0x56			<== La posicón 3 (0xb mod 8) del pin está codificado con este valor
     1ad5:	75 0f                	jne    1ae6 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x536>
     1ad7:	48 8b 45 c8          	mov    rax,QWORD PTR [rbp-0x38]
-    1adb:	48 83 c0 0e          	add    rax,0xe			<== Comprueba la posición 0xe del patron_codificado
+    1adb:	48 83 c0 0e          	add    rax,0xe			<== Comprueba la posición 0xe del patron1_codificado
     1adf:	0f b6 00             	movzx  eax,BYTE PTR [rax]
     1ae2:	3c 51                	cmp    al,0x51			<== La posicón 6 (0xe mod 8) del pin está codificado con este valor
     1ae4:	74 05                	je     1aeb <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x53b>
@@ -252,7 +252,7 @@ patron_original[14]=0x9a; pin[6] = not(0xffffff51 XOR 0x9a) = 0x34 (4)
 Ya tenemos los siguientes valores del pin: 16X7XX4X
 
 Aquí se podría haber hecho fuerza bruta con un diccionario de los cuatro dígitos que faltan y pasarlo al programa, pero yo decidí seguir adelante y ver como se calculaban el resto de dígitos del pin que faltaban.
-Lo que vemos a continuación es algo muy parecido a lo que hemos visto en el primer bucle que codificaba nuestro pin con el patron1. La diferencia es que este bucle codifica el patron1_codificado de 0x12 bytes(18) con un patron2 de 0x21 bytes(33). Así se puede ver en el código como se accede al patron2 y se hace una copia.
+Lo que vemos a continuación es algo muy parecido a lo que hemos visto en el primer bucle que codificaba nuestro pin con el patron1. La diferencia es que este bucle codifica el patron1_codificado de 0x12 bytes(18) con un patron2 de 0x21 bytes(33). Aquí se puede ver en el código como se accede al patron2 y se hace una copia.
 
 ```
     1aeb:	lea    rax,[rbp-0x81]
@@ -301,7 +301,7 @@ Lo que vemos a continuación es algo muy parecido a lo que hemos visto en el pri
     1b91:	add    QWORD PTR [rbp-0x28],0x1
     1b96:	jmp    1b2e <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x57e>
 ```
-No pongo anotaciones en el código porque es idéntico al anterior y además así practicais para ir siguiendo lo que hace ;-). Básicamente sigue haciendo estas operaciones:
+No pongo anotaciones en el código porque es idéntico al anterior y además así practicais vosotros para ir viendo lo que hace ;-). Básicamente hace esto:
 
 ```C
 for (i=0; i < 33; i = i + 1) {
@@ -310,36 +310,36 @@ for (i=0; i < 33; i = i + 1) {
 }
 ```
 
-Igual que en el primer patrón, al salir de este segundo bucle se van a realizar una serie de comprobaciones para comprobar que nuestro pin es correcto. De esta manera podemos calcular si vamos haciendo las operaciones inversas los cuatro valores restantes que nos quedan por saber del pin (posicones 2,4,5 y 7). En este código se muestra esas comprobaciones que con la práctica anterior podéis seguir sin ayuda:
+Igual que en el primer patrón, al salir de este segundo bucle se van a realizar una serie de comprobaciones para saber si el pin introducido es correcto. De esta manera podemos calcular, si vamos haciendo las operaciones inversas, los cuatro valores restantes que nos quedan por saber del pin (posicones 2,4,5 y 7). En este código se muestra esas comprobaciones que con la práctica anterior podéis seguir sin ayuda:
 
 ```
     1bb3:	48 8d 85 30 ff ff ff 	lea    rax,[rbp-0xd0]
-    1bba:	be 1d 00 00 00       	mov    esi,0x1d
+    1bba:	be 1d 00 00 00       	mov    esi,0x1d		<== Comprueba la posición 0x1d del patron2_codificado
     1bbf:	48 89 c7             	mov    rdi,rax
     1bc2:	e8 c9 f9 ff ff       	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
     1bc7:	0f b6 00             	movzx  eax,BYTE PTR [rax]
-    1bca:	3c 69                	cmp    al,0x69
+    1bca:	3c 69                	cmp    al,0x69		
     1bcc:	75 51                	jne    1c1f <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x66f>
     1bce:	48 8d 85 30 ff ff ff 	lea    rax,[rbp-0xd0]
-    1bd5:	be 07 00 00 00       	mov    esi,0x7
+    1bd5:	be 07 00 00 00       	mov    esi,0x7		<== Comprueba la posición 0x7 del patron2_codificado
     1bda:	48 89 c7             	mov    rdi,rax
     1bdd:	e8 ae f9 ff ff       	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
     1be2:	0f b6 00             	movzx  eax,BYTE PTR [rax]
     1be5:	3c 31                	cmp    al,0x31
     1be7:	75 36                	jne    1c1f <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x66f>
     1be9:	48 8d 85 30 ff ff ff 	lea    rax,[rbp-0xd0]
-    1bf0:	be 1e 00 00 00       	mov    esi,0x1e
+    1bf0:	be 1e 00 00 00       	mov    esi,0x1e		<== Comprueba la posición 0x1e del patron1_codificado
     1bf5:	48 89 c7             	mov    rdi,rax
     1bf8:	e8 93 f9 ff ff       	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
     1bfd:	0f b6 00             	movzx  eax,BYTE PTR [rax]
     1c00:	3c 68                	cmp    al,0x68
     1c02:	75 1b                	jne    1c1f <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x66f>
     1c04:	48 8d 85 30 ff ff ff 	lea    rax,[rbp-0xd0]
-    1c0b:	be 1f 00 00 00       	mov    esi,0x1f
+    1c0b:	be 1f 00 00 00       	mov    esi,0x1f		<== Comprueba la posición 0x1f del patron1_codificado
     1c10:	48 89 c7             	mov    rdi,rax
     1c13:	e8 78 f9 ff ff       	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>
     1c18:	0f b6 00             	movzx  eax,BYTE PTR [rax]
-    1c1b:	3c 77                	cmp    al,0x77
+    1c1b:	3c 77                	cmp    al,0x77		
     1c1d:	74 07                	je     1c26 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x676>
     1c1f:	b8 01 00 00 00       	mov    eax,0x1
     1c24:	eb 05                	jmp    1c2b <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x67b>
