@@ -45,8 +45,8 @@ Aquí vemos guardar en el stack frame algunos valores sospechosos
      bbe:	mov    DWORD PTR [rsp+0xf2],0x746e65	<== Cadena 'tne'
      bc9:	call    sub_F10				<== Función que hace el dibujo en ASCII del conejo
 ```
-
-Y en esta parte del código vemos como construye la cadena que va a servir de password y la pone en donde apunta $rsi
+Si seguimos la ejecución vemos como llama a una función en C++ que recoge nuestro valor por pantalla (¿cin?) y más abajo la llamada a strcmp para comparar las cadenas. 
+La cadena con la que la va a cotejar se construye dinámicamente con los valores almacenados previamente. Al final $rsi va a apuntar a la cadena completa reconstruída:
 
 ```
 => 0x555555554c0b:	call   0x555555554ad0 <_ZStrsIcSt11char_traitsIcEERSt13basic_istreamIT_T0_ES6_PS3_@plt>
@@ -72,7 +72,6 @@ RSI: 0x7fffffffe050 --> 0x746e657774 ('twent')
 RSI: 0x7fffffffe050 ("twenty_two")
 RDI: 0x7fffffffe080 --> 0x41414141 ('AAAA')
 ```
-
 
 Y aquí como se ve en memoria:
 
@@ -110,4 +109,5 @@ Ejecutamos y nos devuelve la flag:
 
 fwhibbit{Tw3nty_tw0_r4bb1t5_ar3_en0ugh} 
 ```
+
 
