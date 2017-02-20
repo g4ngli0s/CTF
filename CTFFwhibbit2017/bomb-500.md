@@ -204,7 +204,42 @@ for (i=0; i < 18; i = i + 1) {
 	copia_patron[i] = NOT(pin(j)) XOR copia_patron[i];
 }
 ```
-	
-	
+
+Así quedaría el patron1 después de realizar el bucle anterior con el pin 12345678:
+
+```
+0x55555576b440:	0x4b783539	0x44486d49	0x56723473	0x39516c32
+0x55555576b450:	0x00006b4a	0x00000000	0x00000031	0x00000000
+```	
+
+Lo que sigue a continuación en el código es una serie de comprobaciones para ver si ciertos valores del pin introducido son correctos. Concretamente comprueba cuatro dígitos del pin, las posiciones 0x1, 0x8, 0xb, 0xe del patron1_codificado. Estas posiciones corresponden con los dígitos que se encuentran en las posiciones 1,0,3 y 6 del pin respectivamente. Tener en cuenta que la posición de cada dígito del pin se calcula haciendo el mod 8 con las posiciones del patron_codificado:
+
+```
+    1a97:	48 8d 85 50 ff ff ff 	lea    rax,[rbp-0xb0]
+    1a9e:	48 89 c7             	mov    rdi,rax
+    1aa1:	e8 8a fa ff ff       	call   1530 <_ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE5c_strEv@plt>
+    1aa6:	48 89 45 c8          	mov    QWORD PTR [rbp-0x38],rax
+    1aaa:	48 8b 45 c8          	mov    rax,QWORD PTR [rbp-0x38]
+    1aae:	48 83 c0 01          	add    rax,0x1			<== Comprueba la posición 0x1 del patron_codificado
+    1ab2:	0f b6 00             	movzx  eax,BYTE PTR [rax]
+    1ab5:	3c 35                	cmp    al,0x35			<== La posicón 1 (0x1 mod 8) del pin está codificado con este valor 
+    1ab7:	75 2d                	jne    1ae6 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x536>
+    1ab9:	48 8b 45 c8          	mov    rax,QWORD PTR [rbp-0x38]
+    1abd:	48 83 c0 08          	add    rax,0x8			<== Comprueba la posición 0x8 del patron_codificado
+    1ac1:	0f b6 00             	movzx  eax,BYTE PTR [rax]
+    1ac4:	3c 73                	cmp    al,0x73			<== La posicón 0 (0x8 mod 8) del pin está codificado con este valor
+    1ac6:	75 1e                	jne    1ae6 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x536>
+    1ac8:	48 8b 45 c8          	mov    rax,QWORD PTR [rbp-0x38]
+    1acc:	48 83 c0 0b          	add    rax,0xb			<== Comprueba la posición 0xb del patron_codificado
+    1ad0:	0f b6 00             	movzx  eax,BYTE PTR [rax]
+    1ad3:	3c 56                	cmp    al,0x56			<== La posicón 3 (0xb mod 8) del pin está codificado con este valor
+    1ad5:	75 0f                	jne    1ae6 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x536>
+    1ad7:	48 8b 45 c8          	mov    rax,QWORD PTR [rbp-0x38]
+    1adb:	48 83 c0 0e          	add    rax,0xe			<== Comprueba la posición 0xe del patron_codificado
+    1adf:	0f b6 00             	movzx  eax,BYTE PTR [rax]
+    1ae2:	3c 51                	cmp    al,0x51			<== La posicón 6 (0xe mod 8) del pin está codificado con este valor
+    1ae4:	74 05                	je     1aeb <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x53b>
+    1ae6:	e8 60 fd ff ff       	call   184b <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x29b>
+```
 
 
