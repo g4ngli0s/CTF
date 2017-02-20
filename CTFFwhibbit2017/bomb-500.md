@@ -151,7 +151,7 @@ Una vez hechas las comprobaciones vamos a la pimera parte del meollo. Lo primero
     1a20:	call   14e0 <_ZNSaIcED1Ev@plt>
 ```
 
-Tendríamos el patron1 original y su copia en la siguientes posiciones de memoria respectivamente:
+Tendríamos el patron1 original y una copia del mismo, que vamos a usar para operar con nuestro pin introducido, en la siguientes posiciones de memoria respectivamente (va a ocupar 0x12 bytes):
 
 ```
 >>> x/32xw 0x000055555555698a
@@ -162,7 +162,38 @@ Tendríamos el patron1 original y su copia en la siguientes posiciones de memori
 0x55555576b450:	0x0000a284	0x00000000	0x0001fbb1	0x00000000
 ```
 
+Veamos las operaciones que hace el algoritmo en este bucle entre el pin introducido por nosotros y el patron1:
 
-
-
+```
+    1a25:	mov    QWORD PTR [rbp-0x20],0x0		<== i=0 (Asignación inicial, esta instrucción está fuera del bucle
+    1a2d:	lea    rax,[rbp-0xb0]			<== Inicio del bucle. Sitio ideal para poner un breakpoint.
+    1a34:	mov    rdi,rax				<== Mueve la posición de memoria de la copia del patron1 a $rdi
+    1a37:	call   1420 <_ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE6lengthEv@plt>	<== Calcula tamaño del patron1
+    1a3c:	cmp    rax,QWORD PTR [rbp-0x20]		<== Comprueba si i=18 (longitud del patron1)
+    1a40:	seta   al
+    1a43:	test   al,al
+    1a45:	je     1a97 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x4e7>	<== Sale del bucle si i=18
+    1a47:	mov    rdx,QWORD PTR [rbp-0x20]		<== Vuelve a traer valor de i
+    1a4b:	lea    rax,[rbp-0xb0]			<== Valor de la posición de memoria que apunta a la copia del patron1
+    1a52:	mov    rsi,rdx				<== Arg1=i
+    1a55:	mov    rdi,rax				<== Arg2=&copia_patron1
+    1a58:	call   1590 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt>	<== Calcula la posición de memoria de la copia del patron1 + i. Devuelve &copia_patron1+i. Es la forma de recorrer el patron1 byte a byte
+    1a5d:	mov    rbx,rax				<== Guarda en $rbx &copia_patron1+i. $rbx=&copia_patron+i
+    1a60:	movzx  r12d,BYTE PTR [rbx]		<== Guarda en r12 el valor patron[i] 
+    1a64:	mov    rax,QWORD PTR [rbp-0x30]		<== Trae la posición de memoria de nuestro pin introducido (&pin_introducido)
+    1a68:	mov    rdi,rax
+    1a6b:	call   1480 <strlen@plt>		<== Trae la longitud del pin (long=8)
+    1a70:	mov    rcx,rax				<== $rcx=8
+    1a73:	mov    rax,QWORD PTR [rbp-0x20]		<== $rax=i
+    1a77:	mov    edx,0x0				<== Deja vacio $edx para recoger el resto de la siguiente división
+    1a7c:	div    rcx				<== $rax=$rax/$rcx, el resto en $edx. j = i mod 8
+    1a7f:	mov    rax,QWORD PTR [rbp-0x30]		<== $rax = &pin_introducido
+    1a83:	add    rax,rdx				<== &pin_introducido=&pin_introducido+j
+    1a86:	movzx  eax,BYTE PTR [rax]		<== Trae el valor pin[j] a $eax
+    1a89:	not    eax				<== Not lógico del valor de pin[j]
+    1a8b:	xor    eax,r12d				<== Xor lógico entre Not(pin[j]) y patron[i]. NuevoValor= Not(pin[j]) XOR patron[i]
+    1a8e:	mov    BYTE PTR [rbx],al		<== Guarda nuevo valor en posmemoria. patron[i]=NuevoValor
+    1a90:	add    QWORD PTR [rbp-0x20],0x1
+    1a95:	jmp    1a2d <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE11_M_capacityEm@plt+0x47d>
+```
 
