@@ -7,3 +7,6 @@
 
 #### Forensics
 - [rabbit_traffic](https://github.com/g4ngli0s/CTF/blob/master/CTFFwhibbit2017/rabbit_traffic.md): Solución al reto de USA de 150 puntos.
+
+#### Exploiting
+- [carrots](https://github.com/g4ngli0s/CTF/blob/master/CTFFwhibbit2017/carrots-300.md): Solución al reto South Africa de 150 puntos.
