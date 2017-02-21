@@ -227,7 +227,7 @@ Yes! My Carrot is here! mmmm ...
 fwhibbit{Carrots_for_All_dabd8800}
 ```
 
-Ya tenemos el flag, pero si lo introducimos en el panel del CTF nos dice que no es correcto. WTF!!!!
+Ya tenemos el flag, pero si lo introducimos en el panel del CTF nos dice que no es correcto. WTF!!!!    
 Aquí es donde me ofusque con este reto y empecé a hacer todo tipo de pruebas dentro de gdb para ver porque esa no era el flag correcto. Después de medio día perdido volviendome loco y gracias a consultar con un admin del CTF que me dijo que no tenía que hacer el reversing del binario sino que explotarlo, entendí que tenía que ejecutar el exploit fuera del gdb porque los últimos valores del flag(dabd8800) eran el valor de una posición de memoria. Y cuando ejecutas el programa para debugearlo esas posiciones son diferentes a cuando lo haces directamente sobre el sistema. Por lo tanto hice mi cutre script en python y así conseguí explotar el programa. :-)
 
 ```python
