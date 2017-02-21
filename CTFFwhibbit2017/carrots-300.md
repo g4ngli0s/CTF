@@ -26,14 +26,14 @@ PIE       : disabled
 RELRO     : Partial
 ```
 
-Sólo tiene habilitado lal no ejecucción en la pila, vamos a crear un patrón de caracteres para averiguar el offset con metasploit:
+Sólo tiene habilitado la no ejecucción en la pila, vamos a crear un patrón de caracteres para averiguar el offset con metasploit:
 
 ```
 /usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l 150
 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9
 ```
 
-Lo metemos en gdb y nos da una dirección que se corresponde con una parte del patrón anteior. Esta dirección se la pasamos a metaspoit otra vez y nos da el offset:
+Lo metemos en gdb y nos da una dirección que se corresponde con una parte del patrón anteior. Esta dirección se la pasamos a metasploit otra vez y nos da el offset:
 
 ```
 /usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -l 150 -q 0x37654136
@@ -166,6 +166,7 @@ Tenemos una comparación entre el valor 0x42495244 (que en ASCII es 'BIRD", ¡so
 x/32xw 0x804c1d4
 0x804c1d4 <c1>:	0x41414141	0xb7c24200	0x00000000	0x00000000
 ```
+
 Mmm... no creo que sea casualidad que haya 'AAAA' en esa posición de memoria. Sospecho que en la función main guarda un valor en esa posición de memoria para asegurarse que nadie modifica la pila. Lo que se conoce como el canary stack, pero debe ser un canary hardcodeado en el propio código porque antes hemos visto que no estaba habilitado esa protección en el binario. Volvamos a la función main y veamos cuando guarda ese valor y como podemos saltarnos el canary hardcodeado:
 
 ```
@@ -173,20 +174,34 @@ Mmm... no creo que sea casualidad que haya 'AAAA' en esa posición de memoria. S
  8049790:	55                   	push   ebp
  8049791:	89 e5                	mov    ebp,esp
  8049793:	81 ec a8 00 00 00    	sub    esp,0xa8
- 8049799:	c7 45 fc 44 52 49 42 	mov    DWORD PTR [ebp-0x4],0x42495244
- 80497a0:	c7 45 f8 00 00 00 00 	mov    DWORD PTR [ebp-0x8],0x0
+ 8049799:	c7 45 fc 44 52 49 42 	mov    DWORD PTR [ebp-0x4],0x42495244  <== Guarda como valor local(var_4) el valor hardcodeado del canary
+ 80497a0:	c7 45 f8 00 00 00 00 	mov    DWORD PTR [ebp-0x8],0x0         <== Guarda un 0 en la variable local var_8
  ...........
- 80497ff:	31 c0                	xor    eax,eax
- 8049801:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]          
- 8049804:	89 0d d0 c1 04 08    	mov    DWORD PTR ds:0x804c1d0,ecx    
- 804980a:	8b 4d fc             	mov    ecx,DWORD PTR [ebp-0x4]
- 804980d:	89 0d d4 c1 04 08    	mov    DWORD PTR ds:0x804c1d4,ecx
- 8049813:	8b 4d 04             	mov    ecx,DWORD PTR [ebp+0x4]
- 8049816:	89 0d d8 c1 04 08    	mov    DWORD PTR ds:0x804c1d8,ecx
+ 80497cd:	89 85 74 ff ff ff    	mov    DWORD PTR [ebp-0x8c],eax
+ 80497d3:	e8 c8 f7 ff ff       	call   8048fa0                          <== Función vulnerable que recoge los datos introducidos
+ 80497d8:	81 7d f8 00 00 00 00 	cmp    DWORD PTR [ebp-0x8],0x0          <== Comprueba si es 0 el valor de var_8 (1ª comprobación)
+ 80497df:	89 85 70 ff ff ff    	mov    DWORD PTR [ebp-0x90],eax
+ 80497e5:	0f 85 14 00 00 00    	jne    80497ff <main+0x6f>              <== Si no es 0 salta a exit
+ 80497eb:	31 c0                	xor    eax,eax
+ 80497ed:	c7 04 24 00 00 00 00 	mov    DWORD PTR [esp],0x0
+ 80497f4:	89 85 6c ff ff ff    	mov    DWORD PTR [ebp-0x94],eax
+ 80497fa:	e8 a1 f8 ff ff       	call   80490a0 <exit@plt>
+ 80497ff:	31 c0                	xor    eax,eax                         <== Si se cumle la 1ª condición sigue por aquí
+ 8049801:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]         <== Recupera el valor de var_8   
+ 8049804:	89 0d d0 c1 04 08    	mov    DWORD PTR ds:0x804c1d0,ecx      <== Guarda var_8 en la posición 0x804c1d0
+ 804980a:	8b 4d fc             	mov    ecx,DWORD PTR [ebp-0x4]         <== Recupera el valor del canary hardcodeado guardado en var_4
+ 804980d:	89 0d d4 c1 04 08    	mov    DWORD PTR ds:0x804c1d4,ecx      <== Guarda el valor hardcodeado en la posición 0x804c1d4
+ 8049813:	8b 4d 04             	mov    ecx,DWORD PTR [ebp+0x4]         <== Recupera el valor del canary hardcodeado guardado en var_4
+ 8049816:	89 0d d8 c1 04 08    	mov    DWORD PTR ds:0x804c1d8,ecx      <== Guarda el valor hardcodeado en la posición 0x804c1d4
  804981c:	81 c4 a8 00 00 00    	add    esp,0xa8
  8049822:	5d                   	pop    ebp
  8049823:	c3                   	ret                                   
 ```
+
+
+
+x/32xw $ebp-0x4
+0xbffff334:	0x42495244	0x00000000	0xb7c24276	0x00000001
 
 
 ```
