@@ -52,7 +52,7 @@ Lo metemos en gdb y nos da una dirección que se corresponde con una parte del p
 [*] No exact matches, looking for likely candidates...
 ```
 
-Ooops, parece que no hay ningún offset. Tendremos que probar a ejecutarlo en gdb y calcular a mano el offset o tener en cuenta la información que nos da al ejecutarlo sobre las posiciones de memoria de Red Pill y Your Pill.
+Ooops, parece que no hay ningún offset. Tendremos que probar a ejecutarlo en gdb y calcular a mano el offset o tener en cuenta la información que nos da al ejecutarlo sobre las posiciones de memoria de Red Pill y Your Pill.    
 Lo primero que observamos en el código ensamblador es la necesidad de pasarle un parámetro al ejecutable:
 
 ```
@@ -62,35 +62,67 @@ Lo primero que observamos en el código ensamblador es la necesidad de pasarle u
 
 ```
    0x800014de <main+176>:	mov    ebx,esi
-=> 0x800014e0 <main+178>:	call   0x80000e20 <strcpy@plt>
+=> 0x800014e0 <main+178>:	call   0x80000e20 <strcpy@plt>          <== Función vulnerable que sobreescribe la posición de retorno del stack frame actual
    0x800014e5 <main+183>:	add    esp,0x10
 ```
 
+La pila antes de llamar a strcpy:
+
+```
+0xbffff280:	0xbffff2a5	0xbffff550	0xbffff2e8	0x80001454
+0xbffff290:	0xb7eb9740	0x80004085	0x8000407c	0x8000166d
+0xbffff2a0:	0xffffffff	0x80004000	0xbffff2c8	0x800016d9
+0xbffff2b0:	0x00000001	0x0000ffff	0xb7fa5f2c	0x800016c5
+0xbffff2c0:	0xb7dbf3dc	0x80004000	0x00000002	0x0b103743
+```
+
+La pila después de llamar a strcpy:
+
+```
+0xbffff290:	0xb7eb9740	0x80004085	0x8000407c	0x8000166d
+0xbffff2a0:	0xffffffff	0x41414100	0x41414141	0x41414141
+0xbffff2b0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2c0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2d0:	0x41414141	0x41414141	0xbf004141	0x00000000
+```
+Si seguimos ejecutando el código, vemos que hay una comparación de una variable local con un valor, que casualmente es el valor de red pill:
 ```
    0x80001510 <main+226>:	add    esp,0x10
-=> 0x80001513 <main+229>:	cmp    DWORD PTR [ebp-0x1c],0x50444552
+=> 0x80001513 <main+229>:	cmp    DWORD PTR [ebp-0x1c],0x50444552     <== Valor de red pill
    0x8000151a <main+236>:	jne    0x8000161a <main+492>
 ```
+
+Este valor de redpill lo hemos sobrescrito cuando hemos llamado a la función strcpy como se puede ver en la memoria:
 
 ```
 x/32xw $ebp-0x1c
 0xbffff27c:	0x41414141	0x41414141	0x41414141	0x41414141
 ```
+
+Si en el gdb directamente cambiamos ese valor:
+
 ```
 set {int}0xbffff27c=0x50444552
 ```
+
+Vemos que ahora el contenido de la posición de memoria va a coincidir con el valor de red pill:
+
 ```
 x/32xw $ebp-0x1c
 0xbffff27c:	0x50444552	0x41414141	0x41414141	0x41414141
 ```
 
+Si seguimos ejecutando el programa dentro de gdb:
 
-c
+```
+gdb-peda$ c
 Continuing.
+
   Red Pill
   fwhibbit{t4ke-b0th_1346651474} 
 
+Program received signal SIGSEGV, Segmentation fault.
+```
 
-
-
+¡Bingo! Ya tenemos el flag y sin tener que escribir ningún cutre script de explotación :)
 
