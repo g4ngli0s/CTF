@@ -98,7 +98,7 @@ gdb-peda$ x/64xw $esp
 0xbffff330:	0x41414141	0x41414141	0x42424242	0xb7c24200
 ```
 
-Una vez que sabemos que si introducimos 140 caracteres va a sobreescribir el EIP del stack frame de main, si metemos 136 caracteres y una dirección de memoria donde dirigir el flujo del programa (posición ocupada por BBBB y cuyoo valor es 0xbffff33c). Lo suyo sería dirigir el programa hacia una dirección donde nos muestre el flag que buscamos, pero... ¿cual es esa dirección de memoria?
+Una vez que sabemos que si introducimos 140 caracteres va a sobreescribir el EIP del stack frame de main, si metemos 136 caracteres y una dirección de memoria donde dirigir el flujo del programa (posición ocupada por BBBB y cuyo valor es 0xbffff33c). Lo suyo sería dirigir el programa hacia una dirección donde nos muestre el flag que buscamos, pero... ¿cual es esa dirección de memoria?
 Si echamos un vistazo a las strings, vemos que hay unas cadenas que podrían darnos una pista de donde va a mostrarnos el flag:
 
 ```
@@ -228,7 +228,7 @@ fwhibbit{Carrots_for_All_dabd8800}
 ```
 
 Ya tenemos el flag, pero si lo introducimos en el panel del CTF nos dice que no es correcto. WTF!!!!    
-Aquí es donde me ofusque con este reto y empecé a hacer todo tipo de pruebas dentro de gdb para ver porque esa no era el flag correcto. Después de medio día perdido volviendome loco y gracias a consultar con un admin del CTF que me dijo que no tenía que hacer el reversing del binario sino que explotarlo, entendí que tenía que ejecutar el exploit fuera del gdb porque los últimos valores del flag(dabd8800) eran el valor de una posición de memoria. Y cuando ejecutas el programa para debugearlo esas posiciones son diferentes a cuando lo haces directamente sobre el sistema. Por lo tanto hice mi cutre script en python y así conseguí explotar el programa. :-)
+Aquí es donde me ofusque con este reto y empecé a hacer todo tipo de pruebas dentro de gdb para ver porque esa no era el flag correcto. Después de medio día perdido volviendome loco y gracias a un admin del CTF al que pregunté y me dijo que no tenía que hacer el reversing del binario sino que tenía que explotarlo. Fue entonces cuando entendí que tenía que ejecutar el exploit fuera del gdb porque los últimos valores del flag(dabd8800) eran el valor de una posición de memoria. Y cuando ejecutas el programa para debugearlo esas posiciones son diferentes a cuando lo haces directamente sobre el sistema. Por lo tanto hice mi cutre script en python y así conseguí explotar el programa. :-)
 
 ```python
 #!/usr/bin/python
