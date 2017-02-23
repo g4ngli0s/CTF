@@ -78,7 +78,7 @@ Si miramos la posición de memoria $rbp-0x430 es donde estará almacenado nuestr
 >>> x/32xw $rbp-0x430
 0x7fffffffdd40:	0x31313131	0x31313131	0xf7a7fb00	0x00007fff
 ```
-Veamos ahora que comprobaciones hace con los valores introducidos. La primera comprobación es la que hace con el Mail introducido, recorre la cadena con un bucle para comprobar 
+Veamos ahora que comprobaciones hace con los valores introducidos. La primera comprobación la hace con Mail, va a recorrer la cadena con un bucle para comprobar si hay una '@' en la cadena. 
 
 
 ``` 
@@ -95,11 +95,12 @@ Veamos ahora que comprobaciones hace con los valores introducidos. La primera co
     10ee:	movzx  eax,BYTE PTR [rbp+rax*1-0x230]
     10f6:	cmp    al,0x40				<== Comprueba que el caracter[i] de Mail sea igual a @
     10f8:	jne    10fe <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt+0x31e>
-    10fa:	mov    BYTE PTR [rbp-0x11],0x1		<== Si hay una @ se guarda un 1 en var_11(=$rbp-0x11)
+    10fa:	mov    BYTE PTR [rbp-0x11],0x1		<== Si hay una @ se guarda un 1 en var_11(=$rbp-0x11) -- Centinela
     10fe:	add    DWORD PTR [rbp-0x18],0x1		<== i++
     1102:	jmp    10cf <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt+0x2ef> 	<== Vuelve al principio del bucle
     
 ``` 
+También comprueba que Mail sea mayor que 3 caracteres:
 ```  
     1104:	movzx  eax,BYTE PTR [rbp-0x11]
     1108:	xor    eax,0x1
