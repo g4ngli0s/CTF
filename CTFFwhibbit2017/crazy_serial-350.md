@@ -160,8 +160,10 @@ Si seguimos el ensamblador se tiene que cumplir lo siguiente:
 121E cmp     al, 4ch :  Serial[0x9] = 0x4c ('L')
 1244 call    sub_1029:  Serial[0xc] = Serial[0x5]+Serial[0x5]+0x9
 126C cmp     eax, edx:  Serial[0x17] = Serial[0x11]+0x1
-
-
+127C cmp     al, 74h :  Serial[0xd] = 0x74 ('t')
+128C cmp     al, 66h :  Serial[0xe] = 0x66 ('f')
+12B2 call    sub_1029: 	Serial[0x10] = Serial[0xf]+Serial[0xf]+0xFFFFFF7A
+12CA cmp     al, 54h :  Serial[0x15] = 0x54 ('T')
 
 ```
 
