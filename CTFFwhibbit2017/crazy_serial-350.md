@@ -179,7 +179,7 @@ Si lo ponemos todo en orden y lo ejecutamos tenemos la flag:
 fwhibbit{r4bb1t_s3r14l-2JBH8tckcTj}
 ```
 
-Creo que esto se hace mucho más rápido si usamos la libreria de python [angr](https://github.com/angr/angr). A ver si aprendo y publico la solución con un cutre script de python.
+Creo que esto se hace mucho más rápido si usamos la libreria de python [angr](https://github.com/angr/angr). A ver si aprendo y publico la solución con un script de python.
 
 
 
