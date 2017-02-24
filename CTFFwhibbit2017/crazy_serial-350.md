@@ -173,7 +173,7 @@ Si seguimos el ensamblador se tiene que cumplir lo siguiente:
 1357 call    sub_1029:	Serial[0x14] = Serial[0x18]+Serial[0x18]+0xFFFFFFC3
 ```
 
-Si lo ponemos todo en orden y cumplimos las condiciones nos sale el siguiente serial: Tzey7-drFLT-ctfgH5-puTF6Y. Y ejecutando el programa nos devuelve el flag:
+Si lo ponemos todo en orden y cumplimos las condiciones nos sale el siguiente serial: Tzey7-drFLT-ctfgH5-puTF6Y. Y ejecutando el programa nos devuelve la flag:
 
 ```
 ./crazy_serial-350 
