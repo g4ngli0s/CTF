@@ -175,11 +175,8 @@ Si seguimos el ensamblador se tiene que cumplir lo siguiente:
 
 Si lo ponemos todo en orden y lo ejecutamos tenemos la flag:
 
-
-	
-	
-	
-	
-	Serial[0x7] = 0x72 ('r')
+```
+fwhibbit{r4bb1t_s3r14l-2JBH8tckcTj}
+```
 	
 	
