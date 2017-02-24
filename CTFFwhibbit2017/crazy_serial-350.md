@@ -165,7 +165,7 @@ Si seguimos el ensamblador se tiene que cumplir lo siguiente:
 12B2 call    sub_1029: 	Serial[0x10] = Serial[0xf]+Serial[0xf]+0xFFFFFF7A
 12CA cmp     al, 54h :  Serial[0x15] = 0x54 ('T')
 12DA cmp     al, 48h : 	Serial[0x10] = 0x48 ('H')
-12EA cmp     al, 75h :	Serial[0x14] = 0x48 ('u')
+12EA cmp     al, 75h :	Serial[0x14] = 0x75 ('u')
 12FA cmp     al, 35h :	Serial[0x11] = 0x35 ('5')
 130A cmp     al, 70h : 	Serial[0x13] = 0x70 ('p')
 131A cmp     al, 46h :	Serial[0x16] = 0x46 ('F')
