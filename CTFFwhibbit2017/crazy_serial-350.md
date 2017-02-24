@@ -147,11 +147,29 @@ La siguiente comprobación es que las posiciones 0x0 y 0xa del Serial sean igual
     117b:	e8 8f fe ff ff       	call   100f 
 ```
 Si seguimos el ensamblador se tiene que cumplir lo siguiente:
-	- Serial[0x] = 0x79 ('z')
-	- Serial[0x] = 0x79 ('z')
-	- Serial[0x] = 0x79 ('z')
-	- Serial[0x] = 0x79 ('z')
-	- Serial[0x] = 0x79 ('z')
-	- Serial[0x] = 0x79 ('z')
-	- Serial[0x] = 0x79 ('z')
+
+```
+1187 cmp     al, 7Ah : 	Serial[0x1] = 0x7a ('z')
+1197 cmp     al, 79h : 	Serial[0x3] = 0x79 ('y')
+11A7 test    al, al  : 	Serial[0x19] = 0x00 (Último caracter de Serial, indica fin de cadena)
+11B7 cmp     al, 65h : 	Serial[0x2] = 0x65 ('e')
+11D7 cmp     eax, edx: 	Serial[0x4] = Serial[0x11]+0x2
+11E7 cmp     al, 64h :	Serial[0x6] = 0x64 ('d')
+11F7 cmp     al, 72h :  Serial[0x7] = 0x72 ('r')
+120E cmp     dl, al  :	Serial[0x8] = Serial[0x16]
+121E cmp     al, 4ch :  Serial[0x9] = 0x4c ('L')
+1244 call    sub_1029:  Serial[0xc] = Serial[0x5]+Serial[0x5]+0x9
+126C cmp     eax, edx:  Serial[0x17] = Serial[0x11]+0x1
+
+
+
+```
+
+	
+	
+	Serial[0x7] = 0x72 ('r')
+	Serial[0x7] = 0x72 ('r')
+	Serial[0x7] = 0x72 ('r')
+	Serial[0x7] = 0x72 ('r')
+	
 	
