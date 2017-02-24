@@ -173,13 +173,19 @@ Si seguimos el ensamblador se tiene que cumplir lo siguiente:
 1357 call    sub_1029:	Serial[0x14] = Serial[0x18]+Serial[0x18]+0xFFFFFFC3
 ```
 
-Si lo ponemos todo en orden y lo ejecutamos tenemos la flag:
+Si lo ponemos todo en orden y cumplimos las condiciones nos sale el siguiente serial: Tzey7-drFLT-ctfgH5-puTF6Y. Y ejecutando el programa nos devuelve el flag:
 
 ```
-fwhibbit{r4bb1t_s3r14l-2JBH8tckcTj}
+./crazy_serial-350 
+ Enter your Mail
+ > AA@A
+ Enter Serial
+ > Tzey7-drFLT-ctfgH5-puTF6Y
+
+  fwhibbit{r4bb1t_s3r14l-2JBH8tckcTj}
 ```
 
-Creo que esto se hace mucho más rápido si usamos la libreria de python [angr](https://github.com/angr/angr). A ver si aprendo y publico la solución con un script de python.
+Creo que esto se hace mucho más rápido si usamos la libreria de python [angr](https://github.com/angr/angr). A ver si aprendo y publico la solución usándola.
 
 
 
