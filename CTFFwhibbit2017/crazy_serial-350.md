@@ -92,7 +92,7 @@ Veamos ahora que comprobaciones hace con los valores introducidos. La primera co
     10e7:	jae    1104 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt+0x324>
     10e9:	mov    eax,DWORD PTR [rbp-0x18]
     10ec:	cdqe   
-    10ee:	movzx  eax,BYTE PTR [rbp+rax*1-0x230]
+    10ee:	movzx  eax,BYTE PTR [rbp+rax*1-0x230]	<== Coge el caracter[i] de Mail
     10f6:	cmp    al,0x40				<== Comprueba que el caracter[i] de Mail sea igual a @
     10f8:	jne    10fe <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt+0x31e>
     10fa:	mov    BYTE PTR [rbp-0x11],0x1		<== Si hay una @ se guarda un 1 en var_11(=$rbp-0x11) -- Centinela
@@ -102,15 +102,56 @@ Veamos ahora que comprobaciones hace con los valores introducidos. La primera co
 ``` 
 También comprueba que Mail sea mayor que 3 caracteres:
 ```  
-    1104:	movzx  eax,BYTE PTR [rbp-0x11]
-    1108:	xor    eax,0x1
-    110b:	test   al,al
-    110d:	jne    1124 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt+0x344>
-    110f:	lea    rax,[rbp-0x230]
+    1104:	movzx  eax,BYTE PTR [rbp-0x11]	<== Recoge valor del centinela
+    1108:	xor    eax,0x1			<== Comprueba si centinela es 1 (si hay una @)
+    110b:	test   al,al				
+    110d:	jne    1124 			<== Sale si el centinela=0
+    110f:	lea    rax,[rbp-0x230]		<== Vuelve a coger el valor de &Mail
     1116:	mov    rdi,rax
-    1119:	call   d50 <strlen@plt>
-    111e:	cmp    rax,0x3
-    1122:	ja     1129 <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt+0x349>
-    1124:	call   100f <_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEixEm@plt+0x22f>
+    1119:	call   d50 <strlen@plt>		<== Calcula la longitud de Mail
+    111e:	cmp    rax,0x3			<== Comprueba si tiene más de 3 caracteres
+    1122:	ja     1129 			<== Sigue la ejecucción si lenght(Mail)>3
+    1124:	call   100f 			<== Función que llama a salir del programa si no cumple alguna de las condiciones
 ```
 
+Una vez superado el Mail, empieza la locura de comprobaciones con el Serial, hay una ristra enorme de comprobaciones y creo que no voy a poner todas, pondré las más significativas. Se trata de ir superando todas las comprobaciones hasta sacar el valor del serial. La primera comprobación es el nº de dígitos que tiene el serial:
+
+```
+    1129:	lea    rax,[rbp-0x430]	<== Posición de memoria de Serial
+    1130:	mov    rdi,rax
+    1133:	call   d50 <strlen@plt>	<== Halla length(Serial)
+    1138:	cmp    rax,0x18		<== Compara con 24
+    113c:	ja     1143 		<== Si es mayor que 24 sigue
+    113e:	call   100f 		<== Si no lo es sale
+```
+Comprueba que en las posiciones 0x5, 0xb y 0x12 el Serial tenga el caracter "-".
+```
+    1143:	movzx  eax,BYTE PTR [rbp-0x42b]		<== Posicion 5 del Serial ($rbp-0x430 es la posición 0)
+    114a:	cmp    al,0x2d				<== Valor ASCII de '-'
+    114c:	je     1169 
+    114e:	movzx  eax,BYTE PTR [rbp-0x425]		<== Posición 0xb del Serial(0x430-0x425 = 0xb)
+    1155:	cmp    al,0x2d				<== Valor ASCII de '-'
+    1157:	je     1169 
+    1159:	movzx  eax,BYTE PTR [rbp-0x41e]		<== Posición 0xb del Serial(0x430-0x41e = 0x12)
+    1160:	cmp    al,0x2d				<== Valor ASCII de '-'
+    1162:	je     1169 
+    1164:	call   100f 
+```
+La siguiente comprobación es que las posiciones 0x0 y 0xa del Serial sean iguales, Serial[0x0]=Serial[0xa]:
+
+```
+    1169:	0f b6 95 d0 fb ff ff 	movzx  edx,BYTE PTR [rbp-0x430]	<== 0x430-0x430 -> Posición 0x0
+    1170:	0f b6 85 da fb ff ff 	movzx  eax,BYTE PTR [rbp-0x426] <== 0x430-0x426 -> Posición 0xa
+    1177:	38 c2                	cmp    dl,al
+    1179:	74 05                	je     1180 
+    117b:	e8 8f fe ff ff       	call   100f 
+```
+Si seguimos el ensamblador se tiene que cumplir lo siguiente:
+	- Serial[0x] = 0x79 ('z')
+	- Serial[0x] = 0x79 ('z')
+	- Serial[0x] = 0x79 ('z')
+	- Serial[0x] = 0x79 ('z')
+	- Serial[0x] = 0x79 ('z')
+	- Serial[0x] = 0x79 ('z')
+	- Serial[0x] = 0x79 ('z')
+	
