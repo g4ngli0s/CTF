@@ -239,6 +239,16 @@ And finally, as we saw with 'pngcheck' the file 'snworks-logo-facebook.png' cont
 We overwrite the wrong CRC 'f1779cd6' with the expected one '23e5ddc7' and we are able to display the file. Nothing interesting.
 
 
+-----
+## (3) HOMING MISSILE
+
+At this point, lots of stego tools were used against all the PNG files, to no avail. But then if we read again the hint we got from the decoded base64 string:
+
+'Me encanta la IA, estudiado en california'
+
+We see that there is precisely a file 'ucal-fb-image.png' that once displayed shows an University of California logo. If we zoom in the file, on the bottom left part we can see what it seems to be a part of an string. Using a contrast filter with the image reveals the following hidden hex string:
+
+
 
 
 
