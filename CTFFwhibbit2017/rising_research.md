@@ -248,7 +248,91 @@ At this point, lots of stego tools were used against all the PNG files, to no av
 
 We see that there is precisely a file 'ucal-fb-image.png' that once displayed shows an University of California logo. If we zoom in the file, on the bottom left part we can see what it seems to be a part of an string. Using a contrast filter with the image reveals the following hidden hex string:
 
-https://github.com/g4ngli0s/pictures/blob/master/ucal-fb-image.jpg
+d3 b6 44 d4 55 65 65 26 75 86 13 45 94 07 03 25 96 93 d6 35 55 46 13 25 75 07 85 65 65 07 65 26 55 07 84 d4 27 07 13 35 f6 65 64 65 33 25 44 d4 35 53 54 46 85 93 03 25 b4 13 75 a5 35 07 54 25 85 a5 44 26 27 a4 d6 75 35 53 75 55 87 07 55 
+26 16 25 a6 35 55 25 13 d4 a4 a5 03 65 f6 87 75 26 45 86 c6 25 97 94 23 16 13 03 23 65
+
+![alt text](https://github.com/g4ngli0s/pictures/blob/master/ucal-fb-image.jpg)
+
+If we try to decode the hex string to ASCII, we just get rubbish and lots of non-printable characters.
+
+In order to decode the string, we tried other techniques as well, to no avail:
+
+- Converting the file to binary and trying to carve possible hidden files within it.
+- Using the 'xortool' tool to try to determine possible simple stream cyphers and key lengths.
+- Decomposing the string in adequate length substrings and performing mask attacks against each one of them, considering them as hashes.
+
+In the end, we decided just to reverse the string:
+```
+$ echo "d3b644d45565652675861345940703259693d635554613257507856565076526550784d427071335f6656465332544d43553544685930325b41375a53507542585a5442627a4d67535537555870755261625a635552513d4a4a50365f68775264586c6259794231613032365" | rev
+5632303161324979526c68546257786f56305a4a4d315255536a52616255707855573553576d4a7262445a58524570535a57314b52303958644535534d4452335646566f533170724d487055625670565658705752316455536d39695230704954316857625656554d446b3d
+```
+
+And tried to decode it from hex to ASCII using Python, this time successfully:
+```
+>>> print '5632303161324979526c68546257786f56305a4a4d315255536a52616255707855573553576d4a7262445a58524570535a57314b52303958644535534d4452335646566f533170724d487055625670565658705752316455536d39695230704954316857625656554d446b3d'.decode("hex")
+V201a2IyRlhTbWxoV0ZJM1RUSjRabUpxUW5SWmJrbDZXREpSZW1KR09XdE5SMDR3VFVoS1prMHpUbVpVVXpWR1dUSm9iR0pIT1hWbVVUMDk=
+```
+
+It looks clearly as a base64 string, so we try to decode it:
+```
+$ echo V201a2IyRlhTbWxoV0ZJM1RUSjRabUpxUW5SWmJrbDZXREpSZW1KR09XdE5SMDR3VFVoS1prMHpUbVpVVXpWR1dUSm9iR0pIT1hWbVVUMDk= | base64 --decode
+Wm5kb2FXSmlhWFI3TTJ4ZmJqQnRZbkl6WDJRemJGOWtNR04wTUhKZk0zTmZUUzVGWTJobGJHOXVmUT09
+```
+
+We get what it seems to be a new base64 string. Due to the fact that recursive encoding seems to be in place, we used the following script in order to recursively decode in base64 looking for a 'fwh' string on each iteratiom, which is our flag format:
+
+```
+#!/bin/bash 
+#
+# base64_recursive_decoder
+#
+# Rev.20170111
+# by sn4fu 
+#
+
+exec 2>/dev/null
+
+if [[ $# -eq 0 ]] ; then
+   echo 'Decodifica recursivamente un fichero de texto msg.txt en base64, buscando una cadena de texto.'
+   echo 'Uso: ./base64_recursive_decoder <iteraciones> <cadena>'
+   exit 0
+fi
+
+cp msg.txt 1.txt
+
+for ((i=1; i<=$(($1 - 1)); i++)); do
+   cat $i.txt | base64 -d > $(($i + 1)).txt
+   if grep -r $2 $(($i + 1)).txt; then
+      printf "\nCadena encontrada en la Iteracion $i\n"
+      rm $i.txt $(($i + 1)).txt
+      exit 0
+   else 
+      rm $i.txt
+      a=$((i+1))
+   fi
+done
+
+rm $a.txt
+```
+
+Once executed, the script reveals that base64 encoding was used 3 times:
+```
+./base64_recursive_decoder.sh 100 fwh
+
+fwhibbit{3l_n0mbr3_d3l_d0ct0r_3s_M.Echelon}
+
+Cadena encontrada en la Iteracion 3
+```
+
+Our flag is:
+
+fwhibbit{3l_n0mbr3_d3l_d0ct0r_3s_M.Echelon}
+
+
+
+
+
+
 
 
 
