@@ -240,7 +240,7 @@ We overwrite the wrong CRC 'f1779cd6' with the expected one '23e5ddc7' and we ar
 
 
 -----
-## (3) HOMING MISSILE
+## (3) HOMING THE MISSILE
 
 At this point, lots of stego tools were used against all the PNG files, to no avail. But then if we read again the hint we got from the decoded base64 string:
 
