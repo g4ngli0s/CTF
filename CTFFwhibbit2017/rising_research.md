@@ -248,6 +248,7 @@ At this point, lots of stego tools were used against all the PNG files, to no av
 
 We see that there is precisely a file 'ucal-fb-image.png' that once displayed shows an University of California logo. If we zoom in the file, on the bottom left part we can see what it seems to be a part of an string. Using a contrast filter with the image reveals the following hidden hex string:
 
+https://github.com/g4ngli0s/pictures/blob/master/ucal-fb-image.jpg
 
 
 
