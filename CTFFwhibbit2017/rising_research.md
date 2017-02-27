@@ -186,7 +186,7 @@ Me encanta la IA, estudiado en california
 -----
 ## (2) REBUILDING THE PNG FILES
 
-The next step was rebuilding the PNG files in order to be able to display them and look for more information. The magic number of a PNG file is '89 50 4e 47 0d 0a 1a 0a' and we can easily see tha its length is just the amount of bytes overwritten on each file. In order to restore the magic numbers in all the PNG files we use the following script:
+The next step was rebuilding the PNG files in order to be able to display them and look for more information. The magic number of a PNG file is '89 50 4e 47 0d 0a 1a 0a' and we can easily see that its length is just the amount of bytes overwritten on each file. In order to restore the magic numbers in all the PNG files we use the following script:
 
 ```
 #!/bin/bash
