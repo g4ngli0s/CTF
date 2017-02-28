@@ -57,7 +57,7 @@ $ ls -al *.png
 -rw-r--r-- 1 sn4fu sn4fu  114093 Feb 18 19:23 zte-grand-s-ext.png
 ```
 
-But unforrtunately we are not able to display any of them. As we can see using an hex editor, the headers seem to be corrupted because there is no trace of the PNG magic numbers before the iHDR chunk on each file. The magic numbers have been overwritten with other strings. Checking all the files in alphabetical order reveals the following:
+But unfortunately we are not able to display any of them. As we can see using an hex editor, the headers seem to be corrupted because there is no trace of the PNG magic numbers before the iHDR chunk on each file. The magic numbers have been overwritten with other strings. Checking all the files in alphabetical order reveals the following:
 
 ```
 20161107_odhgos_mh_sexistikhs_glwssas\(2\).png
