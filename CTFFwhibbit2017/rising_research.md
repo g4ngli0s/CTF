@@ -279,7 +279,7 @@ $ echo V201a2IyRlhTbWxoV0ZJM1RUSjRabUpxUW5SWmJrbDZXREpSZW1KR09XdE5SMDR3VFVoS1prM
 Wm5kb2FXSmlhWFI3TTJ4ZmJqQnRZbkl6WDJRemJGOWtNR04wTUhKZk0zTmZUUzVGWTJobGJHOXVmUT09
 ```
 
-We get what it seems to be a new base64 string. Due to the fact that recursive encoding seems to be in place, we used the following script in order to recursively decode in base64 looking for a 'fwh' string on each iteratiom, which is our flag format:
+We get what it seems to be a new base64 string. Due to the fact that recursive encoding seems to be in place, we used the following script in order to recursively decode in base64 looking for a 'fwh' string on each iteration, which is our flag format:
 
 ```
 #!/bin/bash 
