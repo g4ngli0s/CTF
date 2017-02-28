@@ -8,6 +8,7 @@
 
 #### Forensics
 - [rabbit_traffic](https://github.com/g4ngli0s/CTF/blob/master/CTFFwhibbit2017/rabbit_traffic.md): Solución al reto de USA de 150 puntos.
+- [rising_research](https://github.com/g4ngli0s/CTF/blob/master/CTFFwhibbit2017/rising_research.md): Solución al reto de Tailandia de 200 puntos.
 
 #### Exploiting
 - [redpill](https://github.com/g4ngli0s/CTF/blob/master/CTFFwhibbit2017/redpill-150.md): Solución al reto de India de 150 puntos.
