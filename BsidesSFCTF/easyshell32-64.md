@@ -381,8 +381,8 @@ ndisasm -b 64 shellcode.txt
 
 Otra nota: Si quisieramos pasar los valores hexadecimales de los opcodes con la \x:
 ```
-from binascii import unhexlify
-s = "48bf2e62696e2f7368006683f70157545fb03b0f05"
+>>> from binascii import unhexlify
+>>> s = "48bf2e62696e2f7368006683f70157545fb03b0f05"
 >>> sx = r"\x" + r"\x".join(s[n : n+2] for n in range(0, len(s), 2))
 >>> print(sx)
 \x48\xbf\x2e\x62\x69\x6e\x2f\x73\x68\x00\x66\x83\xf7\x01\x57\x54\x5f\xb0\x3b\x0f\x05
