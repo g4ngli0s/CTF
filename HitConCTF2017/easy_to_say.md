@@ -9,6 +9,10 @@ Hay que pasarle un shellcode de 24 bytes donde no se repita ningún opcode. No v
 
 Al lío... ahora en plan apuntes en sucio, ya los ordenaré...
 
+Joder, lo iba a explicar en plan sencillito para enterarme y ver lo que he aprendido y un tipo mucho más listo se me ha adelantado:
+
+https://vasco-jofra.github.io/hitcon2017/EasyToSay/
+
 
 
 cat otro.asm 
