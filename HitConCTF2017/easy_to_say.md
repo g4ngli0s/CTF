@@ -5,7 +5,7 @@ Te daban el binario de 64 bits de un servicio corriendo en una máquina remota p
 
 ## **Solución**
 
-Hay que pasarle un shellcode de 24 bytes donde no se repita ningún opcode. No vale pasar el filtro de superar esos 24 bytecode que sean diferentes y luego poner detrás tu shellcode clásico de msfvenom. 
+Hay que pasarle un shellcode como mucho de 24 bytes donde no se puede repetir ningún byte. No vale pasar el filtro de superar esos 24 bytecode que sean diferentes y luego poner detrás tu shellcode clásico de msfvenom. 
 
 Al lío... ahora en plan apuntes en sucio, ya los ordenaré...
 
