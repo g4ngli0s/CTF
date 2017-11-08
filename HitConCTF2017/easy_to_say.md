@@ -388,7 +388,7 @@ EFLAGS: 0x246 (carry PARITY adjust ZERO sign trap INTERRUPT direction overflow)
    0x7ffff7ff304a:	jmp    0x7ffff7ff3043
 ```
 
-Tenemos: 
+Fijandonos en los valores que nos interesan: 
 
 ```
 %rax=0 ---> Código de la llamada sys_read
