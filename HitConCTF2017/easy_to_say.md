@@ -302,7 +302,7 @@ Y por fin, la ansiada flag:
 hitcon{sh3llc0d1n9_1s_4_b4by_ch4ll3n93_4u}
 ```
 
-Otra solución a estudiar para ver que hace exactamente porque no utiliza llamada a syscall:
+Otra solución a estudiar para ver que hace exactamente para hacer la llamada al syscall:
 
 ```asm
 ;BITS64
