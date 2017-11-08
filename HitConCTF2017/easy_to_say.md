@@ -393,10 +393,10 @@ Tenemos:
 ```
 %rax=0 ---> Código de la llamada sys_read
 %rdi=0 ---> Unsigned int fd (0 is stdin, 1 is stdout and 2 is stderr)
-$rsi=0x7ffff7feadbe ---> char \*buf
+$rsi=0x7ffff7feadbe ---> char *buf
 $rdx=0x64 ---> size_t count
 ```
 
-Lo que está haciendo es un bucle para leer por consola lo que le enviemos, lo guarda en el bufer de 0x64 en 0x64 bytes Si nos fijamos en el python le envía una shell.
+Lo que está haciendo es un bucle para leer por consola lo que le enviemos, lo guarda en el bufer de 0x64 en 0x64 bytes. Si nos fijamos en el python le envía una shell.
 
 
