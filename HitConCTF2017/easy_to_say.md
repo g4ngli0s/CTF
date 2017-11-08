@@ -16,6 +16,7 @@ Al lío...
 ### **Reversing**
 
 Mirando el binario, lo primero que te llama la atención es la llamada al memcpy:
+
 ```asm
 mov     rcx, cs:src
 mov     rax, cs:dest
@@ -24,16 +25,22 @@ mov     rsi, rcx        ; src
 mov     rdi, rax        ; dest
 call    memcpy
 ```
+
 Es en la instrucción "call memcpy" nos va a copiar "algo" hardcodeado a otra posición de memoria. Este "algo" es un código que se ejecuta previamente a nuestro shellcode que vamos a pasarle. 
 
 Breakpoint 3 at 0x555555554d89
  
 Así llama a la función memcpy:
+
+
+```
 Guessed arguments:
 arg[0]: 0x7ffff7ff3000 --> 0x0 
 arg[1]: 0x555555554ee8 --> 0x3148c03148ed3148 
 arg[2]: 0x34 ('4')
-	
+
+```
+
 Vamos a tener 0x34h(52) bytes que va a copiar desde la posición de memoria 0x555555554ee8 a la posición de memoria 0x7ffff7ff3000. O sea, siempre se va a copiar a la posición 0x7ffff7ff3000 el contenido de 0x555555554ee8. ¿Qué es lo que hay en esa posición de memoria? Echemos un vistazo:
 
 ```
