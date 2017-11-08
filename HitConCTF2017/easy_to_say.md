@@ -15,7 +15,53 @@ Al lío...
 
 # **Revering**
 
-Mirando el binario, en la función main lo primero que te pida es que introduzcas el código:
+Mirando el binario, lo primero que te llama la atención es la llamada al memcpy:
+```asm
+mov     rcx, cs:src
+mov     rax, cs:dest
+mov     edx, 34h        ; n
+mov     rsi, rcx        ; src
+mov     rdi, rax        ; dest
+call    memcpy
+```
+Es en la instrucción "call memcpy" nos va a copiar "algo" hardcodeado a otra posición de memoria. Este "algo" es un código que se ejecuta previamente a nuestro shellcode que lel pasemos. del main donde va a guardar esa parte más lo que nosotros le pasemos.
+
+Breakpoint 3 at 0x555555554d89
+ 
+Así llama a la función memcpy:
+Guessed arguments:
+arg[0]: 0x7ffff7ff3000 --> 0x0 
+arg[1]: 0x555555554ee8 --> 0x3148c03148ed3148 
+arg[2]: 0x34 ('4')
+	
+Vamos a tener 0x34h(52) bytes que va a copiar desde la posición de memoria 0x555555554ee8 a la posición de memoria 0x7ffff7ff3000. O sea, siempre se va a copiar a la posición 0x7ffff7ff3000 el contenido de 0x555555554ee8. ¿Qué es lo que hay en esa posición de memoria? Echemos un vistazo:
+
+```
+   0x555555554ee8:	xor    rbp,rbp
+   0x555555554eeb:	xor    rax,rax
+   0x555555554eee:	xor    rbx,rbx
+   0x555555554ef1:	xor    rcx,rcx
+   0x555555554ef4:	xor    rdx,rdx
+   0x555555554ef7:	xor    rdi,rdi
+   0x555555554efa:	xor    rsi,rsi
+   0x555555554efd:	xor    r8,r8
+   0x555555554f00:	xor    r9,r9
+   0x555555554f03:	xor    r10,r10
+   0x555555554f06:	xor    r11,r11
+   0x555555554f09:	xor    r12,r12
+   0x555555554f0c:	xor    r13,r13
+   0x555555554f0f:	xor    r14,r14
+   0x555555554f12:	xor    r15,r15
+   0x555555554f15:	add    rsp,0x1000
+   0x555555554f1c:	add    BYTE PTR [rcx+rbp*2+0x6d],dl <-- Esta línea ya no forma parte de su código
+```
+Como vemos son 0x34 (bytes) si restamos las posiciones de memoria:
+```
+   0x555555554f1c-0x555555554ee8=0x34 (el número de bytes que copia en hexadecimal)
+```
+Entonces tenemos un código que nos va a limpiar todos los registros y va a reservar 0x1000 bytes en la pila.
+
+Si seguimos con la función main te va a pedir que introduzcas tu shellcode o código:
 
 ```asm
 lea     rdi, format     ; "Give me your code :"
@@ -109,6 +155,7 @@ xor     rax, fs:28h
 jz      short locret_E5A
 ```asm
 
+Vale la pena detenerse en la
 cat otro.asm 
 ;BITS64
 global _start
