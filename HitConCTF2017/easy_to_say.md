@@ -1,7 +1,7 @@
 
 ## **Enunciado**
 
-Te daban el binario de 64 bits de un servicio corriendo en una máquina remota para que le pases un shellcode y puedes explotarlo para conseguir una shell y poder leer la flag.
+Te daban el binario de 64 bits de un servicio corriendo en una máquina remota para que le pases un shellcode y puedas explotarlo para conseguir una shell y leer la flag.
 
 ## **Solución**
 
