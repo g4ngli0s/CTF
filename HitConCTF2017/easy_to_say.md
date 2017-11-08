@@ -7,13 +7,107 @@ Te daban el binario de 64 bits de un servicio corriendo en una máquina remota p
 
 Hay que pasarle un shellcode como mucho de 24 bytes donde no se puede repetir ningún byte. No vale pasar el filtro de superar esos 24 bytecode que sean diferentes y luego poner detrás tu shellcode clásico de msfvenom. 
 
-Al lío... ahora en plan apuntes en sucio, ya los ordenaré...
-
 Joder, lo iba a explicar en plan sencillito para enterarme y ver lo que he aprendido y un tipo mucho más listo se me ha adelantado:
 
 https://vasco-jofra.github.io/hitcon2017/EasyToSay/
 
+Al lío... 
 
+# **Revering**
+
+Mirando el binario, en la función main lo primero que te pida es que introduzcas el código:
+
+```asm
+lea     rdi, format     ; "Give me your code :"
+mov     eax, 0
+```
+
+Si seguimos más adelante llama a una función para comprobar ese código que le hemos pasado:
+```asm
+mov     [rbp+var_2040], rax
+mov     rdx, [rbp+var_2040]
+lea     rax, [rbp+var_2030]
+mov     rsi, rdx
+mov     rdi, rax
+call    sub_C38
+test    eax, eax
+jz      short loc_E3F
+```
+Si miramos en la función 'sub_C38':
+```asm
+cmp     [rbp+var_40], 18h  <--- Comprueba que el código pasado no supere los 24 bytes
+jbe     short loc_C74
+```
+Luego mediante dos bucles anidadados va comprobando que cada byte de los 24 sea diferente, devuelve 0 si hay alguno igual y 1 si todos son diferentes:
+```
+signed __int64 __fastcall sub_C38(char *a1, unsigned __int64 a2)
+{
+  signed __int64 result; // rax@7
+  __int64 v3; // rcx@13
+  signed int i; // [sp+18h] [bp-28h]@4
+  signed int j; // [sp+1Ch] [bp-24h]@5
+  char s[24]; // [sp+20h] [bp-20h]@4
+  __int64 v7; // [sp+38h] [bp-8h]@1
+
+  v7 = *MK_FP(__FS__, 40LL);
+  if ( a2 > 0x18 )
+  {
+    puts("Overflow");
+    exit(-4);
+  }
+  memset(s, 0, 0x18uLL);
+  s[0] = *a1;
+  for ( i = 1; i < a2; ++i )
+  {
+    for ( j = 0; j < i; ++j )
+    {
+      if ( a1[i] == s[j] )
+      {
+        result = 0LL;
+        goto LABEL_13;
+      }
+    }
+    s[i] = a1[i];
+  }
+  result = 1LL;
+LABEL_13:
+  v3 = *MK_FP(__FS__, 40LL) ^ v7;
+  return result;
+}
+```
+De vuelta a la función main dependiendo del resultado sigue ejecutándose o se sale:
+```asm
+call    sub_C38
+test    eax, eax
+jz      short loc_E3F
+```
+Si es 0:
+```asm
+lea     rdi, aInvalidInput
+call    puts
+mov     edi, 0FFFFFFFDh ; status
+call    _exit
+```
+Si es 1, sigue la ejecucción:
+```asm
+mov     rax, cs:dest
+add     rax, 34h
+mov     rdx, [rbp+var_2030]
+mov     [rax], rdx
+mov     rdx, [rbp+var_2028]
+mov     [rax+8], rdx
+mov     rdx, [rbp+var_2020]
+mov     [rax+10h], rdx
+lea     rdi, aRun       ; "Run !"
+call    puts
+mov     rdx, [rbp+var_2038]
+mov     eax, 0
+call    rdx
+nop
+mov     rax, [rbp+var_8]
+xor     rax, fs:28h
+jz      short locret_E5A
+```asm
 
 cat otro.asm 
 ;BITS64
