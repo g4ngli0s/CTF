@@ -13,7 +13,7 @@ https://vasco-jofra.github.io/hitcon2017/EasyToSay/
 
 Al lío... 
 
-# **Revering**
+### **Reversing**
 
 Mirando el binario, lo primero que te llama la atención es la llamada al memcpy:
 ```asm
@@ -166,7 +166,7 @@ jz      short locret_E5A
 
 Entonces terminando con el reversing, tendríamos su código y el nuestro seguidos. Ahora hay que pensar que shellcode de 24 bytes le pasamos que no sea ningún byte igual y que nos permita ejecutar una shell para leer la flag.
 
-# **Exploiting**
+### **Exploiting**
 
 Aquí básicamente va a ser un copia y pega de la solución del enlace.
 
