@@ -20,3 +20,6 @@ Colgar las soluciones (que nos apetezcan) de los CTF en los que hemos participad
 - [CTF Fwhibbit 2017](https://github.com/g4ngli0s/CTF/tree/master/CTFFwhibbit2017):
   Fecha: 16 al 19 de febrero de 2017.
   Web: https://ctf.fwhibbit.es/
+- [CTF X-MAS 2021](https://github.com/g4ngli0s/CTF/tree/master/CTFXMAS2021):
+  Fecha: 10 al 19 de diciembre de 2021.
+  Web: https://xmas.htsp.ro/home
